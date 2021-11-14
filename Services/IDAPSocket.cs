@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +38,12 @@ namespace SmartSwitchWeb.Services
         public static string Pong()
         {
             return "huan";
+        }
+        public static Welcome CreateJSON()
+        {
+            int rNumber = new Random().Next();
+            Welcome test = new Welcome(msgid: rNumber, isRunning: true);
+            return test;
         }
     }
 }

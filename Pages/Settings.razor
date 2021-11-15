@@ -1,0 +1,52 @@
+﻿<h3>Settings</h3>
+@page "/settings"
+@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.SignalR.Client;
+@using SmartSwitchWeb.Hubs
+@using SmartSwitchWeb.Services
+@code {
+    private DateTimeOffset _startTime;
+    private DateTimeOffset _endTime;
+    private int _durationMin;
+    private int _mw;
+    private bool _isOnline;
+
+    private string _hubUrl;
+    private HubConnection _hubConnection;
+    public async Task Test()
+    {
+        try
+        {
+            _isOnline = true;
+            await Task.Delay(1);
+            string baseUrl = navigationManager.BaseUri;
+
+            _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(_hubUrl)
+                .Build();
+            //_hubConnection.On<string, string>("Broadcast", "test");
+
+            await _hubConnection.StartAsync();
+        }
+                catch (Exception e)
+        {
+            //_message = $"ERROR: Failed to start chat client: {e.Message}";
+            //_isChatting = false;
+        }
+
+    }
+    private async Task SendAsync(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            await _hubConnection.SendAsync("Broadcast", _durationMin, message);
+
+            //_newMessage = string.Empty;
+        }
+    }
+    private void test()
+    {
+       // _hubConnection.InvokeCoreAsync("SendAsync",_)
+    }
+}

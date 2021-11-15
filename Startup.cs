@@ -8,6 +8,8 @@ using SmartSwitchWeb.Services;
 using System;
 using System.Net;
 using System.Net.WebSockets;
+using Microsoft.AspNetCore.ResponseCompression;
+using SmartSwitchWeb.Hubs;
 
 namespace SmartSwitchWeb
 {
@@ -32,6 +34,7 @@ namespace SmartSwitchWeb
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -77,6 +80,7 @@ namespace SmartSwitchWeb
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapHub<FrontEndHub>(FrontEndHub.HubUrl);
             });
         }
     }

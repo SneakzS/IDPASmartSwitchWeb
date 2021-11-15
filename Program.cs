@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
+
 namespace SmartSwitchWeb
 {
     public class Program
@@ -16,6 +17,5 @@ namespace SmartSwitchWeb
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
     }
 }

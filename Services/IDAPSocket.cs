@@ -41,6 +41,7 @@ namespace SmartSwitchWeb.Services
                 {
                     
                 }
+                /*
                 if (MESSAGELIST.Count != 0)
                 {
                     for (int i = 0; i < MESSAGELIST.Count; i++)
@@ -48,7 +49,7 @@ namespace SmartSwitchWeb.Services
                         await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(MESSAGELIST[i].ToString())), result.MessageType, result.EndOfMessage, CancellationToken.None);
                         MESSAGELIST.RemoveAt(i);
                     }
-                }
+                }*/
             }
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
         }

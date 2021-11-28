@@ -10,6 +10,8 @@ using System.Net;
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.ResponseCompression;
 using SmartSwitchWeb.Hubs;
+using SmartSwitchWeb.SocketsManager;
+using SmartSwitchWeb.Handlers;
 
 namespace SmartSwitchWeb
 {
@@ -29,10 +31,11 @@ namespace SmartSwitchWeb
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
+            services.AddWebSocketManager();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
 
             if (env.IsDevelopment())
@@ -46,7 +49,6 @@ namespace SmartSwitchWeb
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -56,6 +58,7 @@ namespace SmartSwitchWeb
             };
 
             app.UseWebSockets(webSocketOptions);
+            app.MapSockets("/wss", serviceProvider.GetService<WebSocketMessageHandler>()); ;
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path == "/ws")

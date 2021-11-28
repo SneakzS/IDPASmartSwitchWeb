@@ -1,9 +1,55 @@
-﻿<h3>Settings</h3>
+﻿
 @page "/settings"
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.SignalR.Client;
 @using SmartSwitchWeb.Hubs
 @using SmartSwitchWeb.Services
+
+
+
+
+
+
+<h3>Settings</h3>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<form method="post">
+    <div>
+        <label>
+            <span>
+            "Frühste Startzeit":ttttttttt
+            </span>
+            <input type="datetime-local" name="startDate" required/>
+        </label>
+    </div>
+    <div>
+    <label>
+        <span>
+        "Fertig bis":
+        </span>
+        <input type="datetime-local" name="endDate" required/>
+    </label>
+    </div>
+    <div>
+    <label>
+        <span>
+        "Dauer in Min":
+        </span>
+        <input type="time" name="duration" required/>
+    </label>
+    </div>
+    <div>
+    <label>
+        <span>
+        "Benötigte MW":
+        </span>
+        <input type="number" name="mw" required />
+    </label>
+    </div>
+    <input type="submit" />
+</form>
+
+
 @code {
     private DateTimeOffset _startTime;
     private DateTimeOffset _endTime;
@@ -29,7 +75,7 @@
 
             await _hubConnection.StartAsync();
         }
-                catch (Exception e)
+        catch (Exception e)
         {
             //_message = $"ERROR: Failed to start chat client: {e.Message}";
             //_isChatting = false;
@@ -47,6 +93,16 @@
     }
     private void test()
     {
-       // _hubConnection.InvokeCoreAsync("SendAsync",_)
+        // _hubConnection.InvokeCoreAsync("SendAsync",_)
+    }
+    private int currentCount = 0;
+    public void IncrementCount()
+    {
+        currentCount++;   
+
+    }
+    public void OnPost()
+    {
+        
     }
 }

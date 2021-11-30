@@ -1,6 +1,7 @@
 ﻿using SmartSwitchWeb.SocketsManager;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SmartSwitchWeb.Handlers
@@ -15,13 +16,21 @@ namespace SmartSwitchWeb.Handlers
         {
             await base.OnConnected(socket);
             var socketId = Connections.GetID(socket);
-            await SendMessageToAll($"{socketId} just joined the party");
+            await SendMessageToAll($"{socketId} joined");
         }
         public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
             var socketId = Connections.GetID(socket);
+            var msg = new RPIMessage
+            {
+                ActionID = RPIMessage.ActionSetFlags,
+                FlagMask = RPIMessage.FlagIsEnabled,
+                Flags = RPIMessage.FlagIsEnabled
+            };
+            string data = RPIMessage.ConvertToString(msg);
             var message = $"{socketId} said: {Encoding.UTF8.GetString(buffer, 0, result.Count)}";
-            await SendMessageToAll(message);
+            await SendMessageToAll(data);
         }
+
     }
 }

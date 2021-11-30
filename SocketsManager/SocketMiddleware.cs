@@ -14,7 +14,7 @@ namespace SmartSwitchWeb.SocketsManager
             _next = next;
             Handler = handler; 
         }
-        private SocketHandler Handler { get; set; }
+        public SocketHandler Handler { get; set; }
         public async Task InvokeAsync(HttpContext context)
         {
             if (!context.WebSockets.IsWebSocketRequest)

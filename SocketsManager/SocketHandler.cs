@@ -8,7 +8,7 @@ namespace SmartSwitchWeb.SocketsManager
 {
     public abstract class SocketHandler
     {
-        public ConnectionManager Connections { get; set; }
+        public static ConnectionManager Connections { get; set; }
         public SocketHandler(ConnectionManager connections)
         {
             Connections = connections;

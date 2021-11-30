@@ -12,12 +12,12 @@
 
 <h3>Settings</h3>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="Send">Click me</button>
 <form method="post">
     <div>
         <label>
             <span>
-            "Frühste Startzeit":ttttttttt
+            "Frühste Startzeit":
             </span>
             <input type="datetime-local" name="startDate" required/>
         </label>
@@ -46,7 +46,8 @@
         <input type="number" name="mw" required />
     </label>
     </div>
-    <input type="submit" />
+    <input type="checkbox" id="name" @bind-value=toggle class="form-check-input"/>
+    <input type="submit" onclick="Send" />
 </form>
 
 
@@ -56,22 +57,21 @@
     private int _durationMin;
     private int _mw;
     private bool _isOnline;
+    private bool toggle { get; set; }
 
     private string _hubUrl;
     private HubConnection _hubConnection;
-    public async Task Test()
+    protected  async override  Task OnInitializedAsync()
     {
         try
         {
             _isOnline = true;
-            await Task.Delay(1);
             string baseUrl = navigationManager.BaseUri;
 
             _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(_hubUrl)
                 .Build();
-            //_hubConnection.On<string, string>("Broadcast", "test");
 
             await _hubConnection.StartAsync();
         }
@@ -82,14 +82,9 @@
         }
 
     }
-    private async Task SendAsync(string message)
+    private async Task Send()
     {
-        if (!string.IsNullOrWhiteSpace(message))
-        {
-            await _hubConnection.SendAsync("Broadcast", _durationMin, message);
-
-            //_newMessage = string.Empty;
-        }
+            await _hubConnection.SendAsync("TestMessage", toggle);
     }
     private void test()
     {

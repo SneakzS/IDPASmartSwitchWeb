@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using SmartSwitchWeb.Hubs;
 using SmartSwitchWeb.SocketsManager;
 using SmartSwitchWeb.Handlers;
+using Radzen;
 
 namespace SmartSwitchWeb
 {
@@ -30,8 +31,11 @@ namespace SmartSwitchWeb
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddWebSocketManager();
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,27 +62,7 @@ namespace SmartSwitchWeb
             };
 
             app.UseWebSockets(webSocketOptions);
-            app.MapSockets("/wss", serviceProvider.GetService<WebSocketMessageHandler>()); ;
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Path == "/ws")
-                {
-                    if (context.WebSockets.IsWebSocketRequest)
-                    {
-                        using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                        await IDAPSocket.Echo(context, webSocket);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    }
-                }
-                else
-                {
-                    await next();
-                }
-
-            });
+            app.MapSockets("/wss", serviceProvider.GetService<WebSocketMessageHandler>());
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();

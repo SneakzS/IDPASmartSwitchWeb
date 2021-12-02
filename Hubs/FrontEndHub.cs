@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ical.Net.DataTypes;
 using Microsoft.AspNetCore.SignalR;
+using SmartSwitchWeb.Data;
 using SmartSwitchWeb.SocketsManager;
 
 namespace SmartSwitchWeb.Hubs
@@ -38,6 +41,10 @@ namespace SmartSwitchWeb.Hubs
         {
             Console.WriteLine($"Disconnected {e?.Message} {Context.ConnectionId}");
             await base.OnDisconnectedAsync(e);
+        }
+        public HashSet<Occurrence> getAppointments()
+        {
+            return IcalCalendar.occurences;
         }
     }
 }

@@ -2,9 +2,10 @@
 @page "/settings"
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.SignalR.Client;
+@using SmartSwitchWeb.Data
 @using SmartSwitchWeb.Hubs
 @using SmartSwitchWeb.Services
-
+@using Ical.Net.DataTypes;
 
 
 
@@ -46,8 +47,18 @@
         <input type="number" name="mw" required />
     </label>
     </div>
-    <input type="checkbox" id="name" @bind-value=toggle class="form-check-input"/>
+    <input type="checkbox" name="test" id="name" @onchange=toggleScheduler class="form-check-input"/>
     <input type="submit" onclick="Send" />
+    <div hidden="@schedulerHidden">
+        <ul>
+            @foreach (var occurrence in occurences)
+            {
+                <li>
+                    @occurrence.Period.StartTime
+                </li>
+            }
+       </ul>
+    </div>
 </form>
 
 
@@ -58,6 +69,8 @@
     private int _mw;
     private bool _isOnline;
     private bool toggle { get; set; }
+    bool schedulerHidden = true;
+    private HashSet<Occurrence> occurences = IcalCalendar.addDailyEvent();
 
     private string _hubUrl;
     private HubConnection _hubConnection;
@@ -84,12 +97,11 @@
     }
     private async Task Send()
     {
-            await _hubConnection.SendAsync("TestMessage", toggle);
+        await _hubConnection.SendAsync("TestMessage", toggle);
     }
-    private void test()
-    {
-        // _hubConnection.InvokeCoreAsync("SendAsync",_)
-    }
+    //toggle scheduler div
+    private void toggleScheduler() => schedulerHidden = !schedulerHidden;
+
     private int currentCount = 0;
     public void IncrementCount()
     {

@@ -10,6 +10,7 @@ namespace SmartSwitchWeb.Hubs
 {
     public class FrontEndHub : Hub
     {
+        SmartSwitchWeb.Handlers.WebSocketMessageHandler webSocketConnection = new Handlers.WebSocketMessageHandler(SocketsManager.SocketHandler.Connections);
         public const string HubUrl = "/message";
         public async void TestMessage(bool isEnabled)
         {
@@ -29,8 +30,7 @@ namespace SmartSwitchWeb.Hubs
                 Flags = RPIMessage.FlagIsEnabled
             };
             var data = RPIMessage.ConvertToString(msg);
-            var test = new Handlers.WebSocketMessageHandler(SocketsManager.SocketHandler.Connections);
-            await test.SendMessageToAll(data);
+            await webSocketConnection.SendMessageToAll(data);
         }
         public override Task OnConnectedAsync()
         {
@@ -44,7 +44,12 @@ namespace SmartSwitchWeb.Hubs
         }
         public HashSet<Occurrence> getAppointments()
         {
-            return IcalCalendar.occurences;
+            return IcalCalendar.GetOccurrences(DateTime.Now, DateTime.Now.AddDays(5));
+        }
+        public async void AddEvent(DateTime dateTime, DateTime endTime, RecurrencePattern recurrencePattern)
+        {
+
+            await webSocketConnection.SendMessageToAll("throw");
         }
     }
 }

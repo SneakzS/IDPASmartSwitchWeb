@@ -1,6 +1,7 @@
 ﻿
 @page "/settings"
 @inject NavigationManager navigationManager
+@using Ical.Net.CalendarComponents
 @using Microsoft.AspNetCore.SignalR.Client;
 @using SmartSwitchWeb.Data
 @using SmartSwitchWeb.Hubs
@@ -13,7 +14,7 @@
 
 <h3>Settings</h3>
 
-<button class="btn btn-primary" @onclick="Send">Click me</button>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me now</button>
 <form method="post">
     <div>
         <label>
@@ -63,6 +64,7 @@
 
 
 @code {
+    #pragma warning disable CS0169
     private DateTimeOffset _startTime;
     private DateTimeOffset _endTime;
     private int _durationMin;
@@ -71,7 +73,6 @@
     private bool toggle { get; set; }
     bool schedulerHidden = true;
     private HashSet<Occurrence> occurences = IcalCalendar.addDailyEvent();
-
     private string _hubUrl;
     private HubConnection _hubConnection;
     protected  async override  Task OnInitializedAsync()
@@ -90,8 +91,6 @@
         }
         catch (Exception e)
         {
-            //_message = $"ERROR: Failed to start chat client: {e.Message}";
-            //_isChatting = false;
         }
 
     }
@@ -105,11 +104,14 @@
     private int currentCount = 0;
     public void IncrementCount()
     {
+        var test = IcalCalendar.GetOccurrences(DateTime.Now,DateTime.Now.AddDays(5));
+        foreach (var  item in test)
+        {
+            CalendarEvent sourceEvent = item.Source as CalendarEvent;
+            int durationMin = (int)sourceEvent.Properties.Where(i => i.Name == "X-Duration-Min").Select(x => x.Value).FirstOrDefault();
+            int usageW = (int)sourceEvent.Properties.Where(i => i.Name == "X-Usage-W").Select(x => x.Value).FirstOrDefault();
+        }
         currentCount++;   
 
-    }
-    public void OnPost()
-    {
-        
     }
 }

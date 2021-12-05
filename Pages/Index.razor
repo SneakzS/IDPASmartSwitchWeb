@@ -9,7 +9,7 @@
 
 <div >
     <div>
-    <RadzenScheduler @ref=@scheduler SlotRender=@OnSlotRender style="height: 768px;width:max-content" TItem="AppointmentData" Data=@appointments StartProperty="Start" EndProperty="End"
+    <RadzenScheduler @ref=@scheduler SlotRender=@OnSlotRender style="height: 768px" TItem="WorkLoadEvent" Data=@appointments StartProperty="Start" EndProperty="End"
         TextProperty="Text" SelectedIndex="2"
         SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
         <RadzenDayView />
@@ -23,17 +23,17 @@
     private string _hubUrl;
     private HubConnection _hubConnection;
     private bool _isOnline;
-    RadzenScheduler<AppointmentData> scheduler;
+    RadzenScheduler<WorkLoadEvent> scheduler;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
-    IList<AppointmentData> appointments = new List<AppointmentData>
+    IList<WorkLoadEvent> appointments = new List<WorkLoadEvent>
     {
-        new AppointmentData { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "Birthday" },
-        new AppointmentData { Start = DateTime.Today.AddDays(-11), End = DateTime.Today.AddDays(-10), Text = "Day off" },
-        new AppointmentData { Start = DateTime.Today.AddDays(-10), End = DateTime.Today.AddDays(-8), Text = "Work from home" },
-        new AppointmentData { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(12), Text = "Online meeting" },
-        new AppointmentData { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(13), Text = "Skype call" },
-        new AppointmentData { Start = DateTime.Today.AddHours(14), End = DateTime.Today.AddHours(14).AddMinutes(30), Text = "Dentist appointment" },
-        new AppointmentData { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation" },
+        new WorkLoadEvent { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "Birthday", Data= new List<int> {3,2}},
+        new WorkLoadEvent { Start = DateTime.Today.AddDays(-11), End = DateTime.Today.AddDays(-10), Text = "Day off", Data= new List<int> {3,2} },
+        new WorkLoadEvent { Start = DateTime.Today.AddDays(-10), End = DateTime.Today.AddDays(-8), Text = "Work from home", Data= new List<int> {3,2} },
+        new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(12), Text = "Online meeting", Data= new List<int> {3,2} },
+        new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(13), Text = "Skype call", Data= new List<int> {3,2} },
+        new WorkLoadEvent { Start = DateTime.Today.AddHours(14), End = DateTime.Today.AddHours(14).AddMinutes(30), Text = "Dentist appointment" , Data= new List<int> {3,2}},
+        new WorkLoadEvent { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation", Data= new List<int> {3,2} },
     };
 
     void OnSlotRender(SchedulerSlotRenderEventArgs args) 
@@ -53,7 +53,7 @@
 
     async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
     {
-        AppointmentData data = await DialogService.OpenAsync<AddAppointmentPage>("Add Appointment",
+        WorkLoadEvent data = await DialogService.OpenAsync<AddAppointmentPage>("Add Appointment",
             new Dictionary<string, object> { { "Start", args.Start }, { "End", args.End } });
 
         if (data != null)
@@ -64,18 +64,18 @@
         }
     }
 
-    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AppointmentData> args)
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<WorkLoadEvent> args)
     {
         await DialogService.OpenAsync<EditAppointmentPage>("Edit Appointment", new Dictionary<string, object> { { "Appointment", args.Data } });
 
         await scheduler.Reload();
     }
 
-    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AppointmentData> args)
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<WorkLoadEvent> args)
     {
         // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
 
-        if (args.Data.Text == "Birthday")
+        if (args.Data.Text == "Rot")
         {
             args.Attributes["style"] = "background: red";
         }

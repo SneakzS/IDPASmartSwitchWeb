@@ -1,6 +1,7 @@
-﻿@inject DialogService DialogService
+﻿@using SmartSwitchWeb.Data
+@inject DialogService DialogService
 
-<RadzenTemplateForm TItem="AppointmentData" Data="@model" Submit=@OnSubmit>
+<RadzenTemplateForm TItem="WorkLoadEvent" Data="@model" Submit=@OnSubmit>
 <div class="row" style="margin-bottom: 16px">
     <div class="col-md-3">
         <RadzenLabel Text="Text" />
@@ -37,16 +38,16 @@
 </RadzenTemplateForm>
 @code {
     [Parameter]
-    public AppointmentData Appointment { get; set; }
+    public WorkLoadEvent Appointment { get; set; }
 
-    AppointmentData model = new AppointmentData();
+    WorkLoadEvent model = new WorkLoadEvent();
 
     protected override void OnParametersSet()
     {
         model = Appointment;
     }
 
-    void OnSubmit(AppointmentData model)
+    void OnSubmit(WorkLoadEvent model)
     {
         DialogService.Close(model);
     }

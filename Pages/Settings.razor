@@ -14,7 +14,7 @@
 
 <h3>Settings</h3>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me now</button>
+<button class="btn btn-primary" @onclick="Send">Click me now</button>
 <form method="post">
     <div>
         <label>
@@ -52,12 +52,7 @@
     <input type="submit" onclick="Send" />
     <div hidden="@schedulerHidden">
         <ul>
-            @foreach (var occurrence in occurences)
-            {
-                <li>
-                    @occurrence.Period.StartTime
-                </li>
-            }
+            <input type="checkbox" id="name" @bind-value=toggle class="form-check-input"/>
        </ul>
     </div>
 </form>
@@ -72,7 +67,7 @@
     private bool _isOnline;
     private bool toggle { get; set; }
     bool schedulerHidden = true;
-    private HashSet<Occurrence> occurences = IcalCalendar.addDailyEvent();
+    //private List<IcalCalendar> = IcalCalendar.GetWorkloads(DateTime.Now,DateTime.Now.AddDays(5));
     private string _hubUrl;
     private HubConnection _hubConnection;
     protected  async override  Task OnInitializedAsync()
@@ -108,8 +103,9 @@
         foreach (var  item in test)
         {
             CalendarEvent sourceEvent = item.Source as CalendarEvent;
-            int durationMin = (int)sourceEvent.Properties.Where(i => i.Name == "X-Duration-Min").Select(x => x.Value).FirstOrDefault();
-            int usageW = (int)sourceEvent.Properties.Where(i => i.Name == "X-Usage-W").Select(x => x.Value).FirstOrDefault();
+
+            int durationMin = (int)sourceEvent.Properties.Where(i => i.Name == "X-Duration-Min").Select(x => x.Value).Single();
+            int usageW = (int)sourceEvent.Properties.Where(i => i.Name == "X-Usage-W").Select(x => x.Value).Single();
         }
         currentCount++;   
 

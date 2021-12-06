@@ -14,22 +14,13 @@ namespace SmartSwitchWeb.Hubs
         public const string HubUrl = "/message";
         public async void TestMessage(bool isEnabled)
         {
-            ulong mask;
-            if (isEnabled)
-            {
-                mask = 5;
-            }
-            else
-            {
-                mask = 99;
-            }
             var msg = new RPIMessage
             {
                 ActionID = RPIMessage.ActionSetFlags,
-                FlagMask = mask,
-                Flags = RPIMessage.FlagIsEnabled
+                FlagMask = RPIMessage.FlagIsEnabled | RPIMessage.FlagEnforce,
+                Flags = (isEnabled ? RPIMessage.FlagIsEnabled : 0) | RPIMessage.FlagEnforce,
             };
-            var data = RPIMessage.ConvertToString(msg);
+            var data = RPIMessage.Serialize(msg);
             await webSocketConnection.SendMessageToAll(data);
         }
         public override Task OnConnectedAsync()

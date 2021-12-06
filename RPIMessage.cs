@@ -28,7 +28,7 @@ namespace SmartSwitchWeb
             GetFlags = 5
         }
 
-        public static string ConvertToString(RPIMessage msg)
+        public static string Serialize(RPIMessage msg)
         {
             var data = JsonSerializer.Serialize<RPIMessage>(msg);
             var bytes = Encoding.UTF8.GetBytes(data);

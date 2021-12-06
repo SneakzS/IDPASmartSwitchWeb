@@ -1,59 +1,65 @@
 ﻿@using Radzen.Blazor.Rendering
+@using SmartSwitchWeb.Data
 @inject DialogService DialogService
 
-<RadzenTemplateForm TItem="AppointmentData" Data="@model" Submit=@OnSubmit>
-<div class="row" style="margin-bottom: 16px">
-    <div class="col-md-3">
-        <RadzenLabel Text="Text" />
+<RadzenTemplateForm TItem="WorkLoadEvent" Data="@model" Submit=@OnSubmit>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Text" />
+        </div>
+        <div class="col">
+            <RadzenTextBox @bind-Value="@model.Text" Name="Text" />
+            <RadzenRequiredValidator Text="Title is required" Component="Text" />
+        </div>
     </div>
-    <div class="col">
-        <RadzenTextBox @bind-Value="@model.Text" Name="Text" />
-        <RadzenRequiredValidator Text="Title is required" Component="Text" />
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Start" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" />
+            <RadzenRequiredValidator Text="Start is required" Component="Start" />
+        </div>
     </div>
-</div>
-<div class="row" style="margin-bottom: 16px">
-    <div class="col-md-3">
-        <RadzenLabel Text="Start" />
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="End" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </div>
     </div>
-    <div class="col">
-        <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" />
-        <RadzenRequiredValidator Text="Start is required" Component="Start" />
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Wiederholen" />
+        </div>
+        <div class="col">
+            <RadzenSwitch @bind-Value=@_isReccuring />
+        </div>
     </div>
-</div>
-<div class="row" style="margin-bottom: 16px">
-    <div class="col-md-3">
-        <RadzenLabel Text="End" />
+    <div class="row" style="margin-bottom: 16px" hidden=@_isReccuring>
+        <div class="col">
+            <RadzenTabs style="height: 504px; margin: 20px auto;" RenderMode="TabRenderMode.Client">
+                <Tabs>
+                    <RadzenTabsItem Text="Täglich">
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Wöchentlich">
+                      
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Monatlich">
+                      
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
+        </div>
     </div>
-    <div class="col">
-        <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" />
-        <RadzenRequiredValidator Component="End" Text="End is required" />
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+        </div>
     </div>
-</div>
-<div class="row" style="margin-bottom: 16px">
-    <div class="col-md-3">
-        <RadzenLabel Text="Wiederholen" />
-    </div>
-    <div class="col">
-        <RadzenSwitch @bind-Value=@_isReccuring/>
-    </div>
-</div>
-<div class="row" style="margin-bottom: 16px" hidden=@_isReccuring>
-    <div class="col">
-        <RadzenRadioButtonList @bind-Value=@_reccuringInterval TValue="int">
-            <Items>
-                <RadzenRadioButtonListItem Text="Wöchentlich" Value="2" />
-                <RadzenRadioButtonListItem Text="Wöchentlich" Value="2" />
-                <RadzenRadioButtonListItem Text="Monatlich" Value="3" />
-            </Items>
-        </RadzenRadioButtonList>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-3"></div>
-    <div class="col">
-        <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
-    </div>
-</div>
 </RadzenTemplateForm>
 @code {
     [Parameter]
@@ -62,7 +68,7 @@
     [Parameter]
     public DateTime End { get; set; }
 
-    AppointmentData model = new AppointmentData();
+    WorkLoadEvent model = new WorkLoadEvent();
     bool _isReccuring = false;
     int _reccuringInterval = 1;
     protected override void OnParametersSet()
@@ -71,9 +77,9 @@
         model.End = End;
     }
 
-    void OnSubmit(AppointmentData model)
+    void OnSubmit(WorkLoadEvent model)
     {
         DialogService.Close(model);
     }
-    
+
 }

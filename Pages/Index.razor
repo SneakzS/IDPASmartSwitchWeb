@@ -9,7 +9,7 @@
 
 <div >
     <div>
-    <RadzenScheduler @ref=@scheduler SlotRender=@OnSlotRender style="height: 768px" TItem="WorkLoadEvent" Data=@appointments StartProperty="Start" EndProperty="End"
+    <RadzenScheduler @ref=@scheduler LoadData=@OnLoadData SlotRender=@OnSlotRender style="height: 768px" TItem="WorkLoadEvent" Data=@appointments StartProperty="Start" EndProperty="End"
         TextProperty="Text" SelectedIndex="2"
         SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
         <RadzenDayView />
@@ -100,5 +100,12 @@
             //_isChatting = false;
         }
 
+    }
+    async Task OnLoadData(SchedulerLoadDataEventArgs args)
+    {
+
+        // Get the appointments for between the Start and End
+        appointments = IcalCalendar.GetWorkloads(args.Start, args.End);
+        _isOnline = true;
     }
 }

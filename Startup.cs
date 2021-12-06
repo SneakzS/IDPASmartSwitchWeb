@@ -62,7 +62,7 @@ namespace SmartSwitchWeb
             };
 
             app.UseWebSockets(webSocketOptions);
-            app.MapSockets("/wss", serviceProvider.GetService<WebSocketMessageHandler>());
+            app.MapSockets("/ws", serviceProvider.GetService<WebSocketMessageHandler>());
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();

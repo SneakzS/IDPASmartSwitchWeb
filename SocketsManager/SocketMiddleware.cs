@@ -20,9 +20,7 @@ namespace SmartSwitchWeb.SocketsManager
             if (!context.WebSockets.IsWebSocketRequest)
                 return;
             var socket = await context.WebSockets.AcceptWebSocketAsync();
-            
-            var uid = context.Request.Query["uid"].ToString();
-            await Handler.OnConnected(socket,uid);
+            await Handler.OnConnected(socket);
             await Receive(socket, async (result, buffer) =>
             {
                 if (result.MessageType == WebSocketMessageType.Text)

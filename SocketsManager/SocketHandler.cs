@@ -34,6 +34,12 @@ namespace SmartSwitchWeb.SocketsManager
             await Task.Run(() => { Connections.AddSocket(socket,uid); });
         }
 
+        public virtual async Task OnChangeID(WebSocket socket, string uid)
+        {
+            await Task.Run(() => { Connections.ChangeID(socket, uid); });
+        }
+
+
         public async Task SendMessage(string id, string message)
         {
             await SendMessage(Connections.GetSocketById(id), message);

@@ -21,15 +21,26 @@ namespace SmartSwitchWeb.Handlers
         public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
             var socketId = Connections.GetID(socket);
-            var msg = new RPIMessage
+            try
             {
-                ActionID = RPIMessage.ActionSetFlags,
-                FlagMask = RPIMessage.FlagIsEnabled,
-                Flags = RPIMessage.FlagIsEnabled
-            };
-            string data = RPIMessage.Serialize(msg);
+                string receiveResult = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                RPIMessage rPIMessage = JsonSerializer.Deserialize<RPIMessage>(receiveResult);
+                switch (rPIMessage.ActionID)
+                {
+                    case (int)RPIMessage.Action.Hello:
+                        await OnChangeID(socket, rPIMessage.ClientGUID);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch
+            {
+
+            }
             var message = $"{socketId} said: {Encoding.UTF8.GetString(buffer, 0, result.Count)}";
-            await SendMessageToAll(data);
+            await SendMessageToAll("");
         }
 
     }

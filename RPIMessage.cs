@@ -14,6 +14,9 @@ namespace SmartSwitchWeb
 
         [JsonPropertyName("flagMask")]
         public ulong FlagMask { get; set; }
+        [JsonPropertyName("clientGuid")]
+        public string ClientGUID { get; set; }
+
         public enum Action : int{
             SetWorkload = 1,
             GetWorkload = 2,

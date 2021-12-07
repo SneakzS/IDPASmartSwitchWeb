@@ -22,6 +22,29 @@ namespace SmartSwitchWeb.SocketsManager
         {
             return _connections.FirstOrDefault(x=>x.Value == socket).Key;
         }
+        public void ChangeID(WebSocket socket, string newID)
+        {
+            string key = _connections.FirstOrDefault(x => x.Value == socket).Key;
+            if(!_connections.Any(x => x.Key == newID))
+            {
+                Console.WriteLine("{0} renamed to {1}", key ,newID);
+                AddSocket(socket, newID);
+                RemoveKey(key);
+            }
+            else
+            {
+                Console.WriteLine("{0} already exists",newID);
+                RemoveKey(key);
+                AddSocket(socket, newID);
+
+            }
+
+            
+        }
+        public void RemoveKey(string id)
+        {
+            _connections.TryRemove(id, out WebSocket socket);
+        }
         public async Task RemoveSocketAsync(string id)
         {
             _connections.TryRemove(id, out var socket);

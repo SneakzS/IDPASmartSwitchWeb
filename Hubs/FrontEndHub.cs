@@ -16,9 +16,9 @@ namespace SmartSwitchWeb.Hubs
         {
             var msg = new RPIMessage
             {
-                ActionID = RPIMessage.ActionSetFlags,
-                FlagMask = RPIMessage.FlagIsEnabled | RPIMessage.FlagEnforce,
-                Flags = (isEnabled ? RPIMessage.FlagIsEnabled : 0) | RPIMessage.FlagEnforce,
+                ActionID = (int)RPIMessage.Action.SetFlags,
+                FlagMask = (ulong)(RPIMessage.Flag.IsEnabled | RPIMessage.Flag.Enforce),
+                Flags = (ulong)((isEnabled ? RPIMessage.Flag.IsEnabled : 0) | RPIMessage.Flag.Enforce),
             };
             var data = RPIMessage.Serialize(msg);
             await webSocketConnection.SendMessageToAll(data);

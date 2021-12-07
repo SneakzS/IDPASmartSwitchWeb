@@ -28,6 +28,12 @@ namespace SmartSwitchWeb.SocketsManager
             await socket.SendAsync(new ArraySegment<byte>(Encoding.ASCII.GetBytes(message), 0,message.Length),
                 WebSocketMessageType.Text, true, System.Threading.CancellationToken.None);
         }
+
+        public virtual async Task OnConnected(WebSocket socket, string uid)
+        {
+            await Task.Run(() => { Connections.AddSocket(socket,uid); });
+        }
+
         public async Task SendMessage(string id, string message)
         {
             await SendMessage(Connections.GetSocketById(id), message);

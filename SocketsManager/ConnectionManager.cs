@@ -35,5 +35,10 @@ namespace SmartSwitchWeb.SocketsManager
         {
             return Guid.NewGuid().ToString("N");
         }
+
+        internal void AddSocket(WebSocket socket, string uid)
+        {
+            _connections.TryAdd(uid, socket);
+        }
     }
 }

@@ -7,12 +7,6 @@ namespace SmartSwitchWeb
 {
     public class RPIMessage
     {
-        public const int ActionSetFlags = 4;
-
-        public const ulong FlagEnforce = 1 << 0;
-        public const ulong FlagIsEnabled = 1 << 1;
-        public const ulong FlagHasError = 1 << 2;
-
         [JsonPropertyName("actionId")]
         public int ActionID { get; set; }
         [JsonPropertyName("flags")]
@@ -20,12 +14,13 @@ namespace SmartSwitchWeb
 
         [JsonPropertyName("flagMask")]
         public ulong FlagMask { get; set; }
-        public enum Action{
+        public enum Action : int{
             SetWorkload = 1,
             GetWorkload = 2,
             DeleteWorkload = 3,
             SetFlags = 4,
-            GetFlags = 5
+            GetFlags = 5,
+            Hello = 6
         }
 
         public static string Serialize(RPIMessage msg)
@@ -34,6 +29,30 @@ namespace SmartSwitchWeb
             var bytes = Encoding.UTF8.GetBytes(data);
             return data;
         }
+        public enum Flag {
+            Enforce = 1 << 0,
+
+            IsEnabled = 1 << 1,
+
+            IsUIConnected = 1 << 2,
+
+            ProviderClientOK = 1 << 3
+        }
        
+    }
+    public class Workload
+    {
+        [JsonPropertyName("workloadPlanId")]
+        int workloadPlanId;
+        [JsonPropertyName("workloadW")]
+        int workloadW;
+        [JsonPropertyName("durationM")]
+        int durationM;
+        [JsonPropertyName("toleranceDurationM")]
+        int toleranceDurationM;
+        [JsonPropertyName("repeatPattern")]
+        int repeatPattern;
+        [JsonPropertyName("isEnabled")]
+        int isEnabled;
     }
 }

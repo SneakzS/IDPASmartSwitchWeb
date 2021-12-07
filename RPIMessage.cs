@@ -5,8 +5,10 @@ using SmartSwitchWeb.Handlers;
 
 namespace SmartSwitchWeb
 {
+
     public class RPIMessage
     {
+
         [JsonPropertyName("actionId")]
         public int ActionID { get; set; }
         [JsonPropertyName("flags")]
@@ -23,7 +25,7 @@ namespace SmartSwitchWeb
             DeleteWorkload = 3,
             SetFlags = 4,
             GetFlags = 5,
-            Hello = 6
+            Helo = 6
         }
 
         public static string Serialize(RPIMessage msg)

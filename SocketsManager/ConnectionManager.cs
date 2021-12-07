@@ -36,7 +36,6 @@ namespace SmartSwitchWeb.SocketsManager
                 Console.WriteLine("{0} already exists",newID);
                 RemoveKey(key);
                 AddSocket(socket, newID);
-
             }
 
             

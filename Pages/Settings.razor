@@ -91,7 +91,7 @@
     }
     private async Task Send()
     {
-        await _hubConnection.SendAsync("TestMessage", toggle);
+        await _hubConnection.SendAsync("ForceStart", toggle);
     }
     //toggle scheduler div
     private void toggleScheduler() => schedulerHidden = !schedulerHidden;

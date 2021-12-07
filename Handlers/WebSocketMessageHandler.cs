@@ -16,7 +16,7 @@ namespace SmartSwitchWeb.Handlers
         {
             await base.OnConnected(socket);
             var socketId = Connections.GetID(socket);
-            await SendMessageToAll($"{socketId} joined");
+            //await SendMessageToAll($"{socketId} joined");
         }
         public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
@@ -27,7 +27,7 @@ namespace SmartSwitchWeb.Handlers
                 RPIMessage rPIMessage = JsonSerializer.Deserialize<RPIMessage>(receiveResult);
                 switch (rPIMessage.ActionID)
                 {
-                    case (int)RPIMessage.Action.Hello:
+                    case (int)RPIMessage.Action.Helo:
                         await OnChangeID(socket, rPIMessage.ClientGUID);
                         break;
 
@@ -39,8 +39,6 @@ namespace SmartSwitchWeb.Handlers
             {
 
             }
-            var message = $"{socketId} said: {Encoding.UTF8.GetString(buffer, 0, result.Count)}";
-            await SendMessageToAll("");
         }
 
     }

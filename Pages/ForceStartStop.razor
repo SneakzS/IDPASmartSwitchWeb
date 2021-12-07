@@ -1,0 +1,36 @@
+﻿@page "/start"
+@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.SignalR.Client
+@using SmartSwitchWeb.Hubs
+<h3>ForceStartStop</h3>
+ <RadzenButton Text="Start" Click=@(args => OnStartForce(true)) Icon="power" ButtonStyle="ButtonStyle.Success" />
+ <RadzenButton Text="Stop" Click=@(args => OnStartForce(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" />
+ <RadzenButton Text="Geplanter Modus" Click=@(args => OnForceStop()) Icon="check_circle" ButtonStyle="ButtonStyle.Danger" />
+@code {
+    private string _hubUrl;
+    private HubConnection _hubConnection;
+    protected  async override  Task OnInitializedAsync()
+    {
+
+        try
+        {
+            string baseUrl = navigationManager.BaseUri;
+
+            _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(_hubUrl)
+                .Build();
+
+            await _hubConnection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            //_message = $"ERROR: Failed to start chat client: {e.Message}";
+            //_isChatting = false;
+        }
+
+    }
+    private async void OnStartForce(bool start) => await _hubConnection.SendAsync("ForceStart", start);
+    private async void OnForceStop()=> await _hubConnection.SendAsync("ForceStop");
+
+}

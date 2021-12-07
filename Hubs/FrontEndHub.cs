@@ -12,13 +12,24 @@ namespace SmartSwitchWeb.Hubs
     {
         SmartSwitchWeb.Handlers.WebSocketMessageHandler webSocketConnection = new Handlers.WebSocketMessageHandler(SocketsManager.SocketHandler.Connections);
         public const string HubUrl = "/message";
-        public async void TestMessage(bool isEnabled)
+        public async void ForceStart(bool isEnabled)
         {
             var msg = new RPIMessage
             {
                 ActionID = (int)RPIMessage.Action.SetFlags,
                 FlagMask = (ulong)(RPIMessage.Flag.IsEnabled | RPIMessage.Flag.Enforce),
                 Flags = (ulong)((isEnabled ? RPIMessage.Flag.IsEnabled : 0) | RPIMessage.Flag.Enforce),
+            };
+            var data = RPIMessage.Serialize(msg);
+            await webSocketConnection.SendMessageToAll(data);
+        }
+        public async void ForceStop()
+        {
+            var msg = new RPIMessage
+            {
+                ActionID = (int)RPIMessage.Action.SetFlags,
+                FlagMask = (ulong)RPIMessage.Flag.Enforce,
+                Flags = 0L
             };
             var data = RPIMessage.Serialize(msg);
             await webSocketConnection.SendMessageToAll(data);

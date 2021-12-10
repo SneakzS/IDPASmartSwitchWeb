@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SmartSwitchWeb.Database
 {
@@ -13,6 +14,10 @@ namespace SmartSwitchWeb.Database
         protected DbSet<T> DbSet
         {
             get;set;
+        }
+		public async Task SaveChangesAsync()
+        {
+			await context.SaveChangesAsync();
         }
 
 		public Database()

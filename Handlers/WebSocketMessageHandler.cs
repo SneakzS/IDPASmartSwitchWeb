@@ -37,15 +37,9 @@ namespace SmartSwitchWeb.Handlers
                         case (int)RPIMessage.Action.Helo:
                             await OnChangeID(socket, rPIMessage.ClientGUID);
                             Device connectedDevice = con.GetDevice(rPIMessage.ClientGUID);
-                            List<Device> _list = Device.DeviceList;
                             if (connectedDevice != null)
                             {
-                                _list.Find(x => x.Guid == rPIMessage.ClientGUID).SetStatus(DeviceStatus.RunningScheduled);
                                 connectedDevice.SetStatus(DeviceStatus.Online);
-                                try { con.Update(connectedDevice); } catch (Exception e) { Console.WriteLine(e); }
-                                //Device.addToList(connectedDevice);
-                                con.Update(_list.Find(x => x.Guid == rPIMessage.ClientGUID));
-                                con.SaveChanges();
                             }
                             else
                             {
@@ -53,7 +47,7 @@ namespace SmartSwitchWeb.Handlers
                                 try { con.Add(newdevice); } catch (Exception e) { Console.WriteLine(e); }
 
                             }
-                            con.SaveChanges();
+                            await con.SaveChangesAsync();
                             break;
 
                         default:

@@ -10,13 +10,14 @@ namespace SmartSwitchWeb.Data
 {
     public static class IcalCalendar
     {
-        public static DateTime now = System.DateTime.Now;
+       
         private static Calendar calendar = new Calendar();
         public static void addDailyEvent()
         {
             if (calendar.Events.Count == 0)
             {
-                var occurences = new HashSet<Occurrence>();
+                  DateTime now = System.DateTime.Now;
+                    var occurences = new HashSet<Occurrence>();
                 var later = now.AddHours(1);
 
                 //Repeat daily for 5 days
@@ -39,7 +40,9 @@ namespace SmartSwitchWeb.Data
         }
         private static List<PeriodList> GetExceptionDates(int daysOff)
         {
-            return new List<PeriodList> { new PeriodList { new Period(new CalDateTime(now.AddDays(daysOff).Date)), new Period(new CalDateTime(now.AddDays(daysOff + 1).Date)) } };
+            return new List<PeriodList> { new PeriodList
+            { new Period(new CalDateTime(DateTime.Now.AddDays(daysOff).Date)),
+                new Period(new CalDateTime(DateTime.Now.AddDays(daysOff + 1).Date)) } };
 
         }
         public static HashSet<Occurrence> GetOccurrences(DateTime start, DateTime end)
@@ -56,9 +59,14 @@ namespace SmartSwitchWeb.Data
             {
                 CalendarEvent sourceEvent = item.Source as CalendarEvent;
 
-                int durationMin = (int)sourceEvent.Properties.Where(i => i.Name == "X-Duration-Min").Select(x => x.Value).Single();
-                int usageW = (int)sourceEvent.Properties.Where(i => i.Name == "X-Usage-W").Select(x => x.Value).Single();
-                workLoads.Add(new WorkLoadEvent { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation", Duration = durationMin, MW = usageW });
+                int durationMin = (int)sourceEvent.Properties
+                    .Where(i => i.Name == "X-Duration-Min")
+                    .Select(x => x.Value).Single();
+                int usageW = (int)sourceEvent.Properties
+                    .Where(i => i.Name == "X-Usage-W").Select(x => x.Value).Single();
+                workLoads.Add(new WorkLoadEvent { Start = DateTime.Today.AddDays(1), 
+                    End = DateTime.Today.AddDays(12), Text = "Vacation",
+                    Duration = durationMin, MW = usageW });
             }
             return workLoads;
 

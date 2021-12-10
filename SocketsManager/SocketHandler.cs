@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SmartSwitchWeb.Data;
+using SmartSwitchWeb.Database;
+using System;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +20,25 @@ namespace SmartSwitchWeb.SocketsManager
         }
         public virtual async Task OnDisconnected(WebSocket socket)
         {
-            await Connections.RemoveSocketAsync(Connections.GetID(socket));
+
+            string id = Connections.GetID(socket);
+            Console.WriteLine(Device.DeviceList[0]);
+            await Connections.RemoveSocketAsync(id);
+            Device device = Device.GetDevice(id);
+            device.SetStatus(DeviceStatus.Offline);
+            try
+            {
+                using (DeviceContext con = new DeviceContext())
+                {
+                    con.Update(device);
+                    con.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
         }
         public async Task SendMessage(WebSocket socket,string message)
         {

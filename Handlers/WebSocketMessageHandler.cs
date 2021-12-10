@@ -1,4 +1,8 @@
-﻿using SmartSwitchWeb.SocketsManager;
+﻿using SmartSwitchWeb.Data;
+using SmartSwitchWeb.Database;
+using SmartSwitchWeb.SocketsManager;
+using System;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -6,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace SmartSwitchWeb.Handlers
 {
+    
     public class WebSocketMessageHandler : SocketHandler
     {
         public WebSocketMessageHandler(ConnectionManager connections): base(connections)
@@ -20,19 +25,40 @@ namespace SmartSwitchWeb.Handlers
         }
         public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
-            var socketId = Connections.GetID(socket);
             try
             {
                 string receiveResult = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 RPIMessage rPIMessage = JsonSerializer.Deserialize<RPIMessage>(receiveResult);
-                switch (rPIMessage.ActionID)
+                using (DeviceContext con = new DeviceContext())
                 {
-                    case (int)RPIMessage.Action.Helo:
-                        await OnChangeID(socket, rPIMessage.ClientGUID);
-                        break;
+                    switch (rPIMessage.ActionID)
+                    {
 
-                    default:
-                        break;
+                        case (int)RPIMessage.Action.Helo:
+                            await OnChangeID(socket, rPIMessage.ClientGUID);
+                            Device connectedDevice = con.GetDevice(rPIMessage.ClientGUID);
+                            List<Device> _list = Device.DeviceList;
+                            if (connectedDevice != null)
+                            {
+                                _list.Find(x => x.Guid == rPIMessage.ClientGUID).SetStatus(DeviceStatus.RunningScheduled);
+                                connectedDevice.SetStatus(DeviceStatus.Online);
+                                try { con.Update(connectedDevice); } catch (Exception e) { Console.WriteLine(e); }
+                                //Device.addToList(connectedDevice);
+                                con.Update(_list.Find(x => x.Guid == rPIMessage.ClientGUID));
+                                con.SaveChanges();
+                            }
+                            else
+                            {
+                                var newdevice = new Device("newDevice", "", rPIMessage.ClientGUID, DeviceStatus.Online);
+                                try { con.Add(newdevice); } catch (Exception e) { Console.WriteLine(e); }
+
+                            }
+                            con.SaveChanges();
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
             }
             catch

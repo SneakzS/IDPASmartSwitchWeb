@@ -1,0 +1,51 @@
+﻿@page "/editDevice/{Guid}"
+@using SmartSwitchWeb.Data
+@using Microsoft.EntityFrameworkCore
+@using SmartSwitchWeb.Database
+@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="Device" Data="@device" Submit=@OnSubmit>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="Text" />
+    </div>
+    <div class="col">
+        <RadzenTextBox @bind-Value="@device.Name" Name="Name" />
+        <RadzenRequiredValidator Text="Title is required" Component="Text" />
+    </div>
+</div>
+<div class="row" style="margin-bottom: 16px">
+    <div class="col-md-3">
+        <RadzenLabel Text="Start" />
+    </div>
+    <div class="col">
+        <RadzenTextBox @bind-Value="@device.Description" Name="Beschreibung" ShowTime="true" />
+        <RadzenRequiredValidator Text="Start is required" Component="Start" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col">
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+    </div>
+</div>
+<ForceStartStop Guid=@Guid></ForceStartStop>
+</RadzenTemplateForm>
+@code {
+    [Parameter]
+    public string Guid{ get; set; }
+
+    Device device;
+    DeviceContext context = new DeviceContext();
+
+    protected override void OnInitialized()
+    {
+        device = context.GetDevice(Guid);
+    }
+
+    async void OnSubmit(Device model)
+    {
+        await context.SaveChangesAsync();
+        DialogService.Close(model);
+    }
+}

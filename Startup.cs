@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SmartSwitchWeb.Data;
-using SmartSwitchWeb.Services;
 using System;
 using System.Net;
 using System.Net.WebSockets;
@@ -59,6 +58,7 @@ namespace SmartSwitchWeb
             var webSocketOptions = new WebSocketOptions()
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(120),
+                
             };
 
             app.UseWebSockets(webSocketOptions);

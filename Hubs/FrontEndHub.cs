@@ -21,7 +21,7 @@ namespace SmartSwitchWeb.Hubs
                 Flags = (ulong)((isEnabled ? RPIMessage.Flag.IsEnabled : 0) | RPIMessage.Flag.Enforce),
             };
             var data = RPIMessage.Serialize(msg);
-            await webSocketConnection.SendMessageToAll(data);
+            await SocketHandler.SendMessageToAll(data);
         }
         public async void ForceStop()
         {
@@ -32,7 +32,7 @@ namespace SmartSwitchWeb.Hubs
                 Flags = 0L
             };
             var data = RPIMessage.Serialize(msg);
-            await webSocketConnection.SendMessageToAll(data);
+            await SocketHandler.SendMessageToAll(data);
         }
         public override Task OnConnectedAsync()
         {
@@ -51,7 +51,7 @@ namespace SmartSwitchWeb.Hubs
         public async void AddEvent(DateTime dateTime, DateTime endTime, RecurrencePattern recurrencePattern)
         {
 
-            await webSocketConnection.SendMessageToAll("throw");
+            await SocketHandler.SendMessageToAll("throw");
         }
     }
 }

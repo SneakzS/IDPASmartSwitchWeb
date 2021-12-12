@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace SmartSwitchWeb.Data
 {
     
-    public enum DeviceStatus {Offline, Online, Unknown, RunningScheduled,RunningManuel, StoppedManual }
+    public enum DeviceStatus {Offline, Online, Unknown, RunningScheduled,RunningManual, StoppedManual }
     public class Device
     {
         public int DeviceID { get; set; }
@@ -29,8 +29,8 @@ namespace SmartSwitchWeb.Data
                 }
             }
         }*/
-        public string Name { get; private set; }
-        public string Description { get; private set; }
+        public string Name { get; set; }
+        public string Description { get;  set; }
         public string Guid { get; private set; }
         public string PicturePath { get;} 
         public DateTime LastOnline { get;private set;}

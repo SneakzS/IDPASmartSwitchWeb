@@ -9,20 +9,20 @@ namespace SmartSwitchWeb.SocketsManager
 {
     public class ConnectionManager
     {
-        private ConcurrentDictionary<string, WebSocket> _connections = new ConcurrentDictionary<string, WebSocket>();
+        private static ConcurrentDictionary<string, WebSocket> _connections = new ConcurrentDictionary<string, WebSocket>();
         public WebSocket GetSocketById(string id)
         {
             return _connections.FirstOrDefault(x => x.Key == id).Value;
         }
-        public ConcurrentDictionary<string,WebSocket> GetAllConnections()
+        public static ConcurrentDictionary<string,WebSocket> GetAllConnections()
         {
             return _connections;
         }
-        public string GetID(WebSocket socket)
+        public static string GetID(WebSocket socket)
         {
             return _connections.FirstOrDefault(x=>x.Value == socket).Key;
         }
-        public void ChangeID(WebSocket socket, string newID)
+        public static void ChangeID(WebSocket socket, string newID)
         {
             string key = _connections.FirstOrDefault(x => x.Value == socket).Key;
             if(!_connections.Any(x => x.Key == newID))
@@ -40,25 +40,25 @@ namespace SmartSwitchWeb.SocketsManager
 
             
         }
-        public void RemoveKey(string id)
+        public static void RemoveKey(string id)
         {
             _connections.TryRemove(id, out WebSocket socket);
         }
-        public async Task RemoveSocketAsync(string id)
+        public static async Task RemoveSocketAsync(string id)
         {
             _connections.TryRemove(id, out var socket);
             await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "socket connection closed",System.Threading.CancellationToken.None);
         }
-        public void AddSocket(WebSocket socket)
+        public static void AddSocket(WebSocket socket)
         {
             _connections.TryAdd(GetConnectionID(), socket);
         }
-        private string GetConnectionID()
+        private static string GetConnectionID()
         {
             return Guid.NewGuid().ToString("N");
         }
 
-        internal void AddSocket(WebSocket socket, string uid)
+        internal static void AddSocket(WebSocket socket, string uid)
         {
             _connections.TryAdd(uid, socket);
         }

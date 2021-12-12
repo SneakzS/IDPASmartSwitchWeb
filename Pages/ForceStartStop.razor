@@ -1,36 +1,58 @@
-﻿@page "/start"
+﻿@page "/start/{Guid}"
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.SignalR.Client
+@using SmartSwitchWeb.Data
+@using SmartSwitchWeb.Database
 @using SmartSwitchWeb.Hubs
+@using SmartSwitchWeb.SocketsManager
 <h3>ForceStartStop</h3>
- <RadzenButton Text="Start" Click=@(args => OnStartForce(true)) Icon="power" ButtonStyle="ButtonStyle.Success" />
- <RadzenButton Text="Stop" Click=@(args => OnStartForce(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" />
+ <RadzenButton Text="Start" Click=@(args => OnForceStart(true)) Icon="power" ButtonStyle="ButtonStyle.Success" />
+ <RadzenButton Text="Stop" Click=@(args => OnForceStart(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" />
  <RadzenButton Text="Geplanter Modus" Click=@(args => OnForceStop()) Icon="check_circle" ButtonStyle="ButtonStyle.Danger" />
 @code {
-    private string _hubUrl;
-    private HubConnection _hubConnection;
-    protected  async override  Task OnInitializedAsync()
+    [Parameter]
+    public string Guid { get; set; }
+    private async void OnForceStart(bool isEnabled)
     {
-
-        try
+        var msg = new RPIMessage
+            {
+                ActionID = (int)RPIMessage.Action.SetFlags,
+                FlagMask = (ulong)(RPIMessage.Flag.IsEnabled | RPIMessage.Flag.Enforce),
+                Flags = (ulong)((isEnabled ? RPIMessage.Flag.IsEnabled : 0) | RPIMessage.Flag.Enforce),
+            };
+        var data = RPIMessage.Serialize(msg);
+        await SocketHandler.SendMessageToAll(data);
+        using(DeviceContext context = new DeviceContext())
         {
-            string baseUrl = navigationManager.BaseUri;
+            Device device = context.GetDevice(Guid);
+            if (isEnabled)
+            {
+                device.SetStatus(DeviceStatus.RunningManual);
+            }
+            else
+            {
+                device.SetStatus(DeviceStatus.StoppedManual);
+            }
 
-            _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(_hubUrl)
-                .Build();
-
-            await _hubConnection.StartAsync();
+            await context.SaveChangesAsync();
         }
-        catch (Exception e)
-        {
-            //_message = $"ERROR: Failed to start chat client: {e.Message}";
-            //_isChatting = false;
-        }
-
     }
-    private async void OnStartForce(bool start) => await _hubConnection.SendAsync("ForceStart", start);
-    private async void OnForceStop()=> await _hubConnection.SendAsync("ForceStop");
+    private async void OnForceStop()
+    {
+        var msg = new RPIMessage
+            {
+                ActionID = (int)RPIMessage.Action.SetFlags,
+                FlagMask = (ulong)RPIMessage.Flag.Enforce,
+                Flags = 0L
+            };
+        var data = RPIMessage.Serialize(msg);
+        await SocketHandler.SendMessage(Guid,data);
+        using(DeviceContext context = new DeviceContext())
+        {
+            Device device = context.GetDevice(Guid);
+            device.SetStatus(DeviceStatus.Online);
+            await context.SaveChangesAsync();
+        }
+    }
 
 }

@@ -13,14 +13,14 @@ namespace SmartSwitchWeb.Handlers
     
     public class WebSocketMessageHandler : SocketHandler
     {
-        public WebSocketMessageHandler(ConnectionManager connections): base(connections)
+        public  WebSocketMessageHandler(ConnectionManager connections): base(connections)
         {
 
         }
         public override async Task OnConnected(WebSocket socket)
         {
             await base.OnConnected(socket);
-            var socketId = Connections.GetID(socket);
+            var socketId = ConnectionManager.GetID(socket);
             //await SendMessageToAll($"{socketId} joined");
         }
         public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)

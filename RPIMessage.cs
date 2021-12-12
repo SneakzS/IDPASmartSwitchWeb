@@ -43,7 +43,7 @@ namespace SmartSwitchWeb
 
             ProviderClientOK = 1 << 3
         }
-       
+
     }
     public class Workload
     {

@@ -7,7 +7,7 @@ namespace SmartSwitchWeb.Database
     public class DatabaseContext : DbContext
     {
         public DbSet<Device> Devices { get; set; }
-
+        public DbSet<Message> Messages { get; set; }
         public string DbPath { get; }
 
         public DatabaseContext()

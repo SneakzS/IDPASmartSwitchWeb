@@ -2,7 +2,7 @@
 
 namespace SmartSwitchWeb
 {
-    public class Messages
+    public class Message
     {
         public DateTime time;
         public string message;
@@ -10,7 +10,7 @@ namespace SmartSwitchWeb
         public string guid;
         public bool isResended;
 
-        public Messages(string message, bool isSended, string guid)
+        public Message(string message, bool isSended, string guid)
         {
             this.message = message;
             this.isSended = isSended;

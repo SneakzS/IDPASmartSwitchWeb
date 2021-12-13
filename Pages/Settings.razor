@@ -4,7 +4,6 @@
 @using Ical.Net.CalendarComponents
 @using Microsoft.AspNetCore.SignalR.Client;
 @using SmartSwitchWeb.Data
-@using SmartSwitchWeb.Hubs
 @using Ical.Net.DataTypes;
 
 
@@ -13,7 +12,7 @@
 
 <h3>Settings</h3>
 
-<button class="btn btn-primary" @onclick="Send">Click me now</button>
+
 <form method="post">
     <div>
         <label>
@@ -68,30 +67,7 @@
     bool schedulerHidden = true;
     //private List<IcalCalendar> = IcalCalendar.GetWorkloads(DateTime.Now,DateTime.Now.AddDays(5));
     private string _hubUrl;
-    private HubConnection _hubConnection;
-    protected  async override  Task OnInitializedAsync()
-    {
-        try
-        {
-            _isOnline = true;
-            string baseUrl = navigationManager.BaseUri;
-
-            _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(_hubUrl)
-                .Build();
-
-            await _hubConnection.StartAsync();
-        }
-        catch (Exception e)
-        {
-        }
-
-    }
-    private async Task Send()
-    {
-        await _hubConnection.SendAsync("ForceStart", toggle);
-    }
+    
     //toggle scheduler div
     private void toggleScheduler() => schedulerHidden = !schedulerHidden;
 

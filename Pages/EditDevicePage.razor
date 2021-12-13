@@ -11,7 +11,7 @@
     </div>
     <div class="col">
         <RadzenTextBox @bind-Value="@device.Name" Name="Name" />
-        <RadzenRequiredValidator Text="Title is required" Component="Text" />
+        <RadzenRequiredValidator Text="Title is required" Component="Name" />
     </div>
 </div>
 <div class="row" style="margin-bottom: 16px">
@@ -20,7 +20,7 @@
     </div>
     <div class="col">
         <RadzenTextBox @bind-Value="@device.Description" Name="Beschreibung" ShowTime="true" />
-        <RadzenRequiredValidator Text="Start is required" Component="Start" />
+        <RadzenRequiredValidator Text="Start is required" Component="Beschreibung" />
     </div>
 </div>
 <div class="row">
@@ -45,6 +45,7 @@
 
     async void OnSubmit(Device model)
     {
+        Console.WriteLine("before await in OnSubmit");
         await context.SaveChangesAsync();
         DialogService.Close(model);
     }

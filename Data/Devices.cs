@@ -31,10 +31,10 @@ namespace SmartSwitchWeb.Data
         }*/
         public string Name { get; set; }
         public string Description { get;  set; }
-        public string Guid { get; private set; }
+        public string Guid { get; set; }
         public string PicturePath { get;} 
-        public DateTime LastOnline { get;private set;}
-        public DeviceStatus Status { get; private set; }
+        public DateTime LastOnline { get; set;}
+        public DeviceStatus Status { get; set; }
         public static List<Device> DeviceList
         {
             get
@@ -56,6 +56,7 @@ namespace SmartSwitchWeb.Data
                 return _deviceList;
             }
         }
+        public Device() {}
         public Device(string name, string description,string guid, DeviceStatus status )
         {
             Name = name;

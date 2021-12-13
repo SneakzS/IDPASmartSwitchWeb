@@ -1,10 +1,10 @@
 ﻿@page "/start/{Guid}"
 @inject NavigationManager navigationManager
+@inject IWebSocketClientHandler _clientHandler
 @using Microsoft.AspNetCore.SignalR.Client
 @using SmartSwitchWeb.Data
 @using SmartSwitchWeb.Database
-@using SmartSwitchWeb.Hubs
-@using SmartSwitchWeb.SocketsManager
+@using SmartSwitchWeb.Handlers
 <h3>ForceStartStop</h3>
  <RadzenButton Text="Start" Click=@(args => OnForceStart(true)) Icon="power" ButtonStyle="ButtonStyle.Success" />
  <RadzenButton Text="Stop" Click=@(args => OnForceStart(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" />
@@ -20,8 +20,12 @@
                 FlagMask = (ulong)(RPIMessage.Flag.IsEnabled | RPIMessage.Flag.Enforce),
                 Flags = (ulong)((isEnabled ? RPIMessage.Flag.IsEnabled : 0) | RPIMessage.Flag.Enforce),
             };
-        var data = RPIMessage.Serialize(msg);
-        await SocketHandler.SendMessageToAll(data);
+        //var data = RPIMessage.Serialize(msg);
+        //await SocketHandler.SendMessageToAll(data);
+        await _clientHandler.SendClientMessage(Guid, msg);
+
+        Console.WriteLine("OnForceStart");
+
         using(DeviceContext context = new DeviceContext())
         {
             Device device = context.GetDevice(Guid);
@@ -45,8 +49,12 @@
                 FlagMask = (ulong)RPIMessage.Flag.Enforce,
                 Flags = 0L
             };
-        var data = RPIMessage.Serialize(msg);
-        await SocketHandler.SendMessage(Guid,data);
+        //var data = RPIMessage.Serialize(msg);
+        //await SocketHandler.SendMessage(Guid,data);
+        await _clientHandler.SendClientMessage(Guid, msg);
+
+        Console.WriteLine("OnForceStop");
+
         using(DeviceContext context = new DeviceContext())
         {
             Device device = context.GetDevice(Guid);

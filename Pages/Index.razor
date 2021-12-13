@@ -1,7 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
 @using Radzen.Blazor.Rendering
-@using SmartSwitchWeb.Hubs
 @using SmartSwitchWeb.Data
 @inject DialogService DialogService
 @inject NavigationManager navigationManager
@@ -79,27 +78,7 @@
             args.Attributes["style"] = "background: red";
         }
     }
-    protected  async override  Task OnInitializedAsync()
-    {
-        try
-        {
-            _isOnline = true;
-            string baseUrl = navigationManager.BaseUri;
-
-            _hubUrl = baseUrl.TrimEnd('/') + FrontEndHub.HubUrl;
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(_hubUrl)
-                .Build();
-
-            await _hubConnection.StartAsync();
-        }
-        catch (Exception e)
-        {
-            //_message = $"ERROR: Failed to start chat client: {e.Message}";
-            //_isChatting = false;
-        }
-
-    }
+    
     async Task OnLoadData(SchedulerLoadDataEventArgs args)
     {
 

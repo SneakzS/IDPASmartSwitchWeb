@@ -3,23 +3,33 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using SmartSwitchWeb.Handlers;
 
 namespace SmartSwitchWeb.SocketsManager
 {
     public class SocketMiddleware
     {
-        private readonly RequestDelegate _next;
-        public SocketMiddleware(RequestDelegate next,SocketHandler handler)
+        private readonly IWebSocketClientHandler _clientHandler;
+
+        public SocketMiddleware(IWebSocketClientHandler clientHandler)
         {
-            _next = next;
-            Handler = handler; 
+            _clientHandler = clientHandler;
         }
-        public SocketHandler Handler { get; set; }
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            if (!context.WebSockets.IsWebSocketRequest)
-                return;
-            var socket = await context.WebSockets.AcceptWebSocketAsync();
+            if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/ws")
+            {
+                var socket = await context.WebSockets.AcceptWebSocketAsync();
+                await HandleSocket(socket);
+
+            }
+            else
+            {
+                await next(context);
+            }
+
+            /*var socket = await context.WebSockets.AcceptWebSocketAsync();
             await Handler.OnConnected(socket);
             await Receive(socket, async (result, buffer) =>
             {
@@ -31,18 +41,67 @@ namespace SmartSwitchWeb.SocketsManager
                 {
                     await Handler.OnDisconnected(socket);
                 }
-            });
-            
+            });*/
+
         }
 
-        private async Task Receive(WebSocket webSocket, Action<WebSocketReceiveResult, byte[]> messageHandler)
+
+
+        async Task HandleSocket(WebSocket socket)
         {
-            var buffer = new byte[1024 * 4];
-            while(webSocket.State == WebSocketState.Open)
+            string clientGUID = null;
+            var buf = new byte[4096];
+            RPIMessage message;
+            try
             {
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                messageHandler(result, buffer);
+                for (; ; )
+                {
+                    var rawMessage = await socket.ReceiveAsync(buf, CancellationToken.None);
+                    if (rawMessage.MessageType != WebSocketMessageType.Text)
+                        continue;
+                    if (rawMessage.MessageType == WebSocketMessageType.Close)
+                        break;
+
+                    try
+                    {
+                        message = JsonSerializer.Deserialize<RPIMessage>(new ArraySegment<byte>(buf, 0, rawMessage.Count));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine("invalid message received {0}", ex);
+                        continue;
+                    }
+
+                    if (clientGUID == null)
+                    {
+                        if (message.ActionID == (int)RPIMessage.Action.Helo)
+                        {
+                            clientGUID = message.ClientGUID;
+                            await _clientHandler.HandleNewConnection(socket, clientGUID);
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine("ignoring message. Sender is not authenticated");
+                        }
+                    }
+                    else
+                    {
+                        await _clientHandler.HandleClientMessage(socket, clientGUID, message);
+                    }
+
+                }
             }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("error in web socket handler {0}", ex);
+            }
+            finally
+            {
+                if (clientGUID != null)
+                    await _clientHandler.HandleClientClosed(socket, clientGUID);
+            }
+
         }
+
     }
 }

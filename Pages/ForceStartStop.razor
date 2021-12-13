@@ -5,13 +5,31 @@
 @using SmartSwitchWeb.Data
 @using SmartSwitchWeb.Database
 @using SmartSwitchWeb.Handlers
-<h3>ForceStartStop</h3>
- <RadzenButton Text="Start" Click=@(args => OnForceStart(true)) Icon="power" ButtonStyle="ButtonStyle.Success" />
- <RadzenButton Text="Stop" Click=@(args => OnForceStart(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" />
- <RadzenButton Text="Geplanter Modus" Click=@(args => OnForceStop()) Icon="check_circle" ButtonStyle="ButtonStyle.Danger" />
+<h4>Bedienen</h4>
+@if (Disabled)
+{
+    Disabled = false;
+    <h3>Deaktiviert weil das Gerät Offline ist.</h3>
+}
+
+ <RadzenButton Text="Start" Click=@(args => OnForceStart(true)) Icon="power" ButtonStyle="ButtonStyle.Success" Disabled=Disabled/>
+ <RadzenButton Text="Stop" Click=@(args => OnForceStart(false)) Icon="power_off" ButtonStyle="ButtonStyle.Warning" Disabled=Disabled />
+ <RadzenButton Text="Geplanter Modus" Click=@(args => OnForceStop()) Icon="check_circle" ButtonStyle="ButtonStyle.Danger" Disabled=Disabled/>
 @code {
     [Parameter]
+    public DeviceStatus Device {get;set;}
+    [Parameter]
     public string Guid { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+    [Parameter]
+    public EventCallback<DeviceStatus> DeviceChanged { get; set; }
+
+    async Task UpdateDevice()
+    {
+        await DeviceChanged.InvokeAsync(Device);
+    }
+
     private async void OnForceStart(bool isEnabled)
     {
         var msg = new RPIMessage
@@ -37,8 +55,9 @@
             {
                 device.SetStatus(DeviceStatus.StoppedManual);
             }
-
+            
             await context.SaveChangesAsync();
+            await UpdateDevice();
         }
     }
     private async void OnForceStop()
@@ -61,6 +80,7 @@
             device.SetStatus(DeviceStatus.Online);
             await context.SaveChangesAsync();
         }
+        await UpdateDevice();
     }
 
 }

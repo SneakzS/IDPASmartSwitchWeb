@@ -12,6 +12,8 @@ using SmartSwitchWeb.SocketsManager;
 using SmartSwitchWeb.Handlers;
 using Radzen;
 using SmartSwitchWeb.Database;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SmartSwitchWeb
 {
@@ -21,6 +23,15 @@ namespace SmartSwitchWeb
         {
             Configuration = configuration;
             _clientHandler = new WebSocketClientHandler();
+            using (DeviceContext context = new DeviceContext())
+            {
+                List<Device> deviceList = context.GetAll().FindAll(d => d.Status != DeviceStatus.Offline );
+                foreach (Device device in deviceList)
+                {
+                    device.Status = DeviceStatus.Offline;
+                }
+                context.SaveChanges();
+            }
         }
 
         WebSocketClientHandler _clientHandler;

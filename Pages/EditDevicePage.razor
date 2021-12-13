@@ -21,6 +21,7 @@
     <div class="col">
         <RadzenTextBox @bind-Value="@device.Description" Name="Beschreibung" ShowTime="true" />
         <RadzenRequiredValidator Text="Start is required" Component="Beschreibung" />
+        @(device.Status);
     </div>
 </div>
 <div class="row">
@@ -29,7 +30,7 @@
         <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
     </div>
 </div>
-<ForceStartStop Guid=@Guid></ForceStartStop>
+<ForceStartStop Guid=@Guid Disabled=true @bind-Device=device.Status></ForceStartStop>
 </RadzenTemplateForm>
 @code {
     [Parameter]
@@ -37,10 +38,12 @@
 
     Device device;
     DeviceContext context = new DeviceContext();
+    public bool isOffline = false;
 
     protected override void OnInitialized()
     {
         device = context.GetDevice(Guid);
+        if(device.Status.Equals(DeviceStatus.Offline)){ isOffline = true; }
     }
 
     async void OnSubmit(Device model)

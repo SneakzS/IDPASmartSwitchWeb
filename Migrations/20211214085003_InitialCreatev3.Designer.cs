@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartSwitchWeb.Database;
 
@@ -10,9 +11,10 @@ using SmartSwitchWeb.Database;
 namespace SmartSwitchWeb.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20211214085003_InitialCreatev3")]
+    partial class InitialCreatev3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
@@ -49,43 +51,24 @@ namespace SmartSwitchWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("DeviceID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Guid")
+                    b.Property<string>("guid")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsResent")
+                    b.Property<bool>("isResent")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsSent")
+                    b.Property<bool>("isSent")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("MessageJson")
+                    b.Property<string>("message")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Time")
+                    b.Property<DateTime>("time")
                         .HasColumnType("TEXT");
 
                     b.HasKey("MessageID");
 
-                    b.HasIndex("DeviceID");
-
                     b.ToTable("Message", (string)null);
-                });
-
-            modelBuilder.Entity("SmartSwitchWeb.Data.Message", b =>
-                {
-                    b.HasOne("SmartSwitchWeb.Data.Device", "Device")
-                        .WithMany("Messages")
-                        .HasForeignKey("DeviceID");
-
-                    b.Navigation("Device");
-                });
-
-            modelBuilder.Entity("SmartSwitchWeb.Data.Device", b =>
-                {
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

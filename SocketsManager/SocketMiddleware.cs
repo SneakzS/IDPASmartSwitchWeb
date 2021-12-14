@@ -57,37 +57,45 @@ namespace SmartSwitchWeb.SocketsManager
                 for (; ; )
                 {
                     var rawMessage = await socket.ReceiveAsync(buf, CancellationToken.None);
-                    if (rawMessage.MessageType != WebSocketMessageType.Text)
-                        continue;
-                    if (rawMessage.MessageType == WebSocketMessageType.Close)
-                        break;
 
-                    try
+                    switch (rawMessage.MessageType)
                     {
-                        message = JsonSerializer.Deserialize<RPIMessage>(new ArraySegment<byte>(buf, 0, rawMessage.Count));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine("invalid message received {0}", ex);
-                        continue;
+                        case WebSocketMessageType.Close:
+                            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                            return;
+
+                        case WebSocketMessageType.Text:
+                            try
+                            {
+                                message = JsonSerializer.Deserialize<RPIMessage>(new ArraySegment<byte>(buf, 0, rawMessage.Count));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Error.WriteLine("invalid message received {0}", ex);
+                                continue;
+                            }
+
+                            if (clientGUID == null)
+                            {
+                                if (message.ActionID == (int)RPIMessage.Action.Helo)
+                                {
+                                    clientGUID = message.ClientGUID;
+                                    await _clientHandler.HandleNewConnection(socket, clientGUID);
+                                }
+                                else
+                                {
+                                    Console.Error.WriteLine("ignoring message. Sender is not authenticated");
+                                }
+                            }
+                            else
+                            {
+                                await _clientHandler.HandleClientMessage(socket, clientGUID, message);
+                            }
+                            break;
+
                     }
 
-                    if (clientGUID == null)
-                    {
-                        if (message.ActionID == (int)RPIMessage.Action.Helo)
-                        {
-                            clientGUID = message.ClientGUID;
-                            await _clientHandler.HandleNewConnection(socket, clientGUID);
-                        }
-                        else
-                        {
-                            Console.Error.WriteLine("ignoring message. Sender is not authenticated");
-                        }
-                    }
-                    else
-                    {
-                        await _clientHandler.HandleClientMessage(socket, clientGUID, message);
-                    }
+
 
                 }
             }
@@ -99,6 +107,8 @@ namespace SmartSwitchWeb.SocketsManager
             {
                 if (clientGUID != null)
                     await _clientHandler.HandleClientClosed(socket, clientGUID);
+                
+                await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, null, CancellationToken.None);
             }
 
         }

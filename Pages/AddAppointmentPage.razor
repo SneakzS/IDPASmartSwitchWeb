@@ -2,6 +2,10 @@
 @using SmartSwitchWeb.Data
 @using System.Globalization
 @inject DialogService DialogService
+@inject IWebSocketClientHandler _clientHandler
+@using Microsoft.AspNetCore.SignalR.Client
+@using SmartSwitchWeb.Database
+@using SmartSwitchWeb.Handlers
 
 <RadzenTemplateForm TItem="WorkLoadEvent" Data="@model" Submit=@OnSubmit>
     <div class="row" style="margin-bottom: 16px">
@@ -11,6 +15,8 @@
         <div class="col">
             <RadzenTextBox @bind-Value="@model.Text" Name="Text" />
             <RadzenRequiredValidator Text="Title is required" Component="Text" />
+            <RadzenNumeric  @bind-Value="@model.MW" Name="MW" />
+            <RadzenRequiredValidator Text="Title is required" Component="MW" />
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
@@ -96,11 +102,72 @@
     {
         model.Start = Start;
         model.End = End;
+
     }
 
     void OnSubmit(WorkLoadEvent model)
     {
+        SendWorkload();
         DialogService.Close(model);
+    }
+
+    public async void SendWorkload(){
+        if (_isReccuring)
+        {
+            string description = "Bester Workload";
+            List<ushort> months = new List<ushort> { 4, 2 };
+            List<ushort> weekdays = new List<ushort> { 1, 2 };
+            List<uint> days = new List<uint> { 1, 2, 3, 4 };
+            List<uint> hours = new List<uint> { 23 };
+            List<ulong> minutes = new List<ulong> { 23 };
+
+            uint dayFlags = (uint)RepeatPattern.SetFlag(days);
+            uint hourFlags = (uint)RepeatPattern.SetFlag(hours);
+            ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minutes);
+
+            ushort monthsFlags = ushort.MaxValue;
+            ushort weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(weekdays);
+
+            RepeatPattern pattern = new RepeatPattern()
+                {
+                    MonthFlags = monthsFlags,
+                    DayFlags = dayFlags,
+                    HourFlags = hourFlags,
+                    MinuteFlags = minuteFlags,
+                    WeekdayFlags = weekdayFlags
+
+                };
+            Workload workload = new Workload
+                {
+                    Description = model.Text,
+                    DurationM = 100,
+                    IsEnabled = true,
+                    RepeatPattern = pattern,
+                    ToleranceDurationM = 10,
+                    WorkloadDefinitionId = 4,
+                    WorkloadW = 187
+                };
+            RPIMessage msg = new RPIMessage
+                {
+                    ActionID = (int)RPIMessage.Action.SetWorkload,
+                    Workload = workload
+
+                };
+                        await _clientHandler.Broadcast(msg);
+        }
+        else {
+            Workload work = new Workload
+                {
+                    WorkloadDefinitionId = model.MW
+                };
+            RPIMessage msg = new RPIMessage
+                {
+                    ActionID = (int)RPIMessage.Action.DeleteWorkload,
+                    Workload = work
+                };
+                        await _clientHandler.Broadcast(msg);
+        }
+
     }
 
 }

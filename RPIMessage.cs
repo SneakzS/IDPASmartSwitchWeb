@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SmartSwitchWeb.Data;
 using SmartSwitchWeb.Handlers;
 
 namespace SmartSwitchWeb
@@ -18,6 +19,8 @@ namespace SmartSwitchWeb
         public ulong FlagMask { get; set; }
         [JsonPropertyName("clientGuid")]
         public string ClientGUID { get; set; }
+        [JsonPropertyName("workloadDefinition")]
+        public Workload Workload { get; set; }
 
         public enum Action : int{
             SetWorkload = 1,
@@ -45,19 +48,5 @@ namespace SmartSwitchWeb
         }
 
     }
-    public class Workload
-    {
-        [JsonPropertyName("workloadPlanId")]
-        int workloadPlanId;
-        [JsonPropertyName("workloadW")]
-        int workloadW;
-        [JsonPropertyName("durationM")]
-        int durationM;
-        [JsonPropertyName("toleranceDurationM")]
-        int toleranceDurationM;
-        [JsonPropertyName("repeatPattern")]
-        int repeatPattern;
-        [JsonPropertyName("isEnabled")]
-        int isEnabled;
-    }
+
 }

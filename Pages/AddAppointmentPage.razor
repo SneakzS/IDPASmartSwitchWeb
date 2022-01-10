@@ -1,5 +1,6 @@
 ﻿@using Radzen.Blazor.Rendering
 @using SmartSwitchWeb.Data
+@using System.Globalization
 @inject DialogService DialogService
 
 <RadzenTemplateForm TItem="WorkLoadEvent" Data="@model" Submit=@OnSubmit>
@@ -40,15 +41,27 @@
     </div>
     <div class="row" style="margin-bottom: 16px" hidden=@_isReccuring>
         <div class="col">
-            <RadzenTabs style="height: 504px; margin: 20px auto;" RenderMode="TabRenderMode.Client">
+            <RadzenTabs style="height: 504px; margin: 20px auto;" RenderMode="TabRenderMode.Client" @bind-SelectedIndex=@selectedIndex>
                 <Tabs>
                     <RadzenTabsItem Text="Täglich">
+                        <div>
+                            Jede(n) <RadzenNumeric TValue="int" Min="1" DisplayName="DayInput" @bind-Value=@Interval /> Tag(e)
+                        </div>
                     </RadzenTabsItem>
                     <RadzenTabsItem Text="Wöchentlich">
-                      
+                        <div>
+                            Jede <InputNumber DisplayName="DayInput" @bind-Value=@Interval ></InputNumber> Woche wiederholen am:
+                             <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value=@weekDaysSelected Multiple="true" Placeholder="Select..." Data=@weekDays Class="w-100" />
+                        </div>    
                     </RadzenTabsItem>
                     <RadzenTabsItem Text="Monatlich">
-                      
+                      <div>
+                          Monate <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value=@monthSelected Multiple="true" Placeholder="Select..." Data=@month Class="w-100" />
+                          Tage <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value=@weekDaysSelected Multiple="true" Placeholder="Select..." Data=@monthDays Class="w-100" />
+                      </div>
                     </RadzenTabsItem>
                 </Tabs>
             </RadzenTabs>
@@ -67,7 +80,15 @@
 
     [Parameter]
     public DateTime End { get; set; }
+    int selectedIndex = 0;
+    int Interval = 1;
+    IEnumerable<string> weekDays = DateTimeFormatInfo.CurrentInfo.DayNames;
+    IEnumerable<string> month = DateTimeFormatInfo.CurrentInfo.MonthNames;
+    IEnumerable<int> monthDays = Enumerable.Range(1, 31).ToArray();
 
+    IEnumerable<string> monthSelected;
+    IEnumerable<int> monthDaysSelected;
+    IEnumerable<string> weekDaysSelected;
     WorkLoadEvent model = new WorkLoadEvent();
     bool _isReccuring = false;
     int _reccuringInterval = 1;

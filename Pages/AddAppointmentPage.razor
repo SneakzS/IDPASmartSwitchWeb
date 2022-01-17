@@ -213,7 +213,7 @@
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.SetWorkload,
-                    Workload = wList
+                    Workload = wList.ToArray
 
                 };
             await _clientHandler.Broadcast(msg);

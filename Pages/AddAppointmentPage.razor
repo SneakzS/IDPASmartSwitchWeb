@@ -174,7 +174,7 @@
                 default:
                     break;
             }
-            string description = "Bester Workload";
+           // string description = "Bester Workload";
             List<ushort> months = new List<ushort> { 4, 2 };
             List<ushort> weekdays = new List<ushort> { 1, 2 };
             List<uint> days = new List<uint> { 1, 2, 3, 4 };
@@ -203,17 +203,16 @@
                     Description = model.Text,
                     DurationM = model.Duration,
                     IsEnabled = true,
-                    RepeatPattern = pattern,
+                    RepeatPattern = new RepeatPattern[]{pattern},
                     ToleranceDurationM = (int)(model.End - model.Start).TotalMinutes,
                     WorkloadDefinitionId = 4,
                     WorkloadW = model.MW
                 };
-            List<Workload> wList = new List<Workload>();
-            wList.Add(workload);
+            
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.SetWorkload,
-                    Workload = wList.ToArray()
+                    Workload = workload,
 
                 };
             await _clientHandler.Broadcast(msg);
@@ -223,12 +222,10 @@
                 {
                     WorkloadDefinitionId = model.MW
                 };
-            List<Workload> wList = new List<Workload>();
-            wList.Add(work);
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.DeleteWorkload,
-                    Workload = wList.ToArray()
+                    Workload = work,
                 };
                         await _clientHandler.Broadcast(msg);
         }

@@ -15,9 +15,14 @@
         <div class="col">
             <RadzenTextBox @bind-Value="@model.Text" Name="Text" />
             <RadzenRequiredValidator Text="Title is required" Component="Text" />
-            <RadzenNumeric  @bind-Value="@model.MW" Name="MW" />
-            <RadzenRequiredValidator Text="Title is required" Component="MW" />
         </div>
+    </div>
+    <div>
+        <div class="col-md-3">
+            <RadzenLabel Text="Benötigte MW" />
+        </div>
+             <RadzenNumeric  @bind-Value="@model.MW" Name="MW" />
+            <RadzenRequiredValidator Text="Title is required" Component="MW" />
     </div>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
@@ -110,10 +115,65 @@
         SendWorkload();
         DialogService.Close(model);
     }
+    void SendWorkloadDaily()
+    {
+        if(Interval == 1)
+        {
+            List<uint> days = new List<uint> { 1, 2, 3, 4,5,6,7 };
+        }
+    }
+    void SendWorkloadWeekly()
+    {
+        List<ushort> _dayIndex = new List<ushort>();
+        if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[0]))
+        {
+            _dayIndex.Add(0);
+        }
+        else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[1]))
+        {
+            _dayIndex.Add(1);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[2]))
+        {
+            _dayIndex.Add(2);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[3]))
+        {
+            _dayIndex.Add(3);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[4]))
+        {
+            _dayIndex.Add(4);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[5]))
+        {
+            _dayIndex.Add(5);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[6]))
+        {
+            _dayIndex.Add(6);
+        }
+        var dayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
+    }
+    void SendWorkloadMonthly()
+    {
+
+    }
+
+
 
     public async void SendWorkload(){
         if (_isReccuring)
         {
+            switch (selectedIndex)
+            {
+                case  0: 
+                    SendWorkloadDaily();
+                    break;
+                case 1:
+                    SendWorkloadWeekly();
+                    break;
+                case 2:
+                    SendWorkloadMonthly();
+                    break;
+                default:
+                    break;
+            }
             string description = "Bester Workload";
             List<ushort> months = new List<ushort> { 4, 2 };
             List<ushort> weekdays = new List<ushort> { 1, 2 };
@@ -137,33 +197,38 @@
                     WeekdayFlags = weekdayFlags
 
                 };
+
             Workload workload = new Workload
                 {
                     Description = model.Text,
-                    DurationM = 100,
+                    DurationM = model.Duration,
                     IsEnabled = true,
                     RepeatPattern = pattern,
-                    ToleranceDurationM = 10,
+                    ToleranceDurationM = (int)(model.End - model.Start).TotalMinutes,
                     WorkloadDefinitionId = 4,
-                    WorkloadW = 187
+                    WorkloadW = model.MW
                 };
+            List<Workload> wList = new List<Workload>();
+            wList.Add(workload);
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.SetWorkload,
-                    Workload = workload
+                    Workload = wList
 
                 };
-                        await _clientHandler.Broadcast(msg);
+            await _clientHandler.Broadcast(msg);
         }
         else {
             Workload work = new Workload
                 {
                     WorkloadDefinitionId = model.MW
                 };
+            List<Workload> wList = new List<Workload>();
+            wList.Add(work);
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.DeleteWorkload,
-                    Workload = work
+                    Workload = wList
                 };
                         await _clientHandler.Broadcast(msg);
         }

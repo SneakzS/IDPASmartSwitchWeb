@@ -20,7 +20,8 @@ namespace SmartSwitchWeb
         public ulong FlagMask { get; set; }
         [JsonPropertyName("clientGuid")]
         public string ClientGUID { get; set; }
-        [JsonPropertyName("workloadDefinition")]
+
+        [JsonPropertyName("workloadDefinitions")]
         public Workload[] Workload { get; set; }
 
         public enum Action : int{

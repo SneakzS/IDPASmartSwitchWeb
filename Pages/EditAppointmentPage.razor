@@ -1,4 +1,7 @@
-﻿@using SmartSwitchWeb.Data
+﻿@inject NavigationManager navigationManager
+@using Microsoft.AspNetCore.SignalR.Client
+@using SmartSwitchWeb.Data
+@using SmartSwitchWeb.Database
 @inject DialogService DialogService
 
 <RadzenTemplateForm TItem="WorkLoadEvent" Data="@model" Submit=@OnSubmit>

@@ -76,6 +76,8 @@ namespace SmartSwitchWeb.Data
     {
         public int MW;
         public int Duration;
+        public RepeatPattern Pattern;
+        public int Guid;
     }
 
 }

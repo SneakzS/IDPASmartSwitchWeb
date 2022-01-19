@@ -17,12 +17,24 @@
             <RadzenRequiredValidator Text="Title is required" Component="Text" />
         </div>
     </div>
-    <div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Gerät" />
+        </div>
+        <div class="col">
+             <RadzenDropDown AllowClear="true" TValue="string" Class="w-100" Name="Device" 
+                            Data=@(_deviceList.Select(d => new { Name = d.Name, Guid = d.Guid} ).Distinct()) TextProperty="Name" ValueProperty="Guid" />
+            <RadzenRequiredValidator Text="Title is required" Component="Text" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
             <RadzenLabel Text="Benötigte MW" />
         </div>
-             <RadzenNumeric  @bind-Value="@model.MW" Name="MW" />
-            <RadzenRequiredValidator Text="Title is required" Component="MW" />
+        <div class="col">
+            <RadzenNumeric  @bind-Value="@model.MW" Name="MW" />
+            <RadzenRequiredValidator Text="MW is required" Component="MW" />
+        </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
@@ -47,10 +59,10 @@
             <RadzenLabel Text="Wiederholen" />
         </div>
         <div class="col">
-            <RadzenSwitch @bind-Value=@_isReccuring />
+            <RadzenSwitch @bind-Value=@_isReccuring Change=@(args => OnChange(args, "Switch")) />
         </div>
     </div>
-    <div class="row" style="margin-bottom: 16px" hidden=@_isReccuring>
+    <div class="row" style="margin-bottom: 16px" hidden=@_isReccuringInverted>
         <div class="col">
             <RadzenTabs style="height: 504px; margin: 20px auto;" RenderMode="TabRenderMode.Client" @bind-SelectedIndex=@selectedIndex>
                 <Tabs>
@@ -71,7 +83,7 @@
                           Monate <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             @bind-Value=@monthSelected Multiple="true" Placeholder="Select..." Data=@month Class="w-100" />
                           Tage <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value=@weekDaysSelected Multiple="true" Placeholder="Select..." Data=@monthDays Class="w-100" />
+                            @bind-Value=@monthDaysSelected Multiple="true" Placeholder="Select..." Data=@monthDays Class="w-100" />
                       </div>
                     </RadzenTabsItem>
                 </Tabs>
@@ -94,7 +106,7 @@
     int selectedIndex = 0;
     int Interval = 1;
     IEnumerable<string> weekDays = DateTimeFormatInfo.CurrentInfo.DayNames;
-    IEnumerable<string> month = DateTimeFormatInfo.CurrentInfo.MonthNames;
+    IEnumerable<string> month = Enumerable.Range(1, 12).Select(i => new { I = i, M = DateTimeFormatInfo.CurrentInfo.GetMonthName(i) });
     IEnumerable<int> monthDays = Enumerable.Range(1, 31).ToArray();
 
     IEnumerable<string> monthSelected;
@@ -102,17 +114,29 @@
     IEnumerable<string> weekDaysSelected;
     WorkLoadEvent model = new WorkLoadEvent();
     bool _isReccuring = false;
+    bool _isReccuringInverted = true;
     int _reccuringInterval = 1;
+
+    DeviceContext context = new DeviceContext();
+    private List<Device> _deviceList;
+    protected override void OnInitialized()
+    {
+        _deviceList = context.GetAll();
+    }
     protected override void OnParametersSet()
     {
         model.Start = Start;
         model.End = End;
 
     }
+    void OnChange(bool value, string name)
+    {
+        _isReccuringInverted = !value;
+    }
 
     void OnSubmit(WorkLoadEvent model)
     {
-        SendWorkload();
+        SendWorkload(model);
         DialogService.Close(model);
     }
     void SendWorkloadDaily()
@@ -127,26 +151,26 @@
         List<ushort> _dayIndex = new List<ushort>();
         if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[0]))
         {
-            _dayIndex.Add(0);
+            _dayIndex.Add(6);
         }
         else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[1]))
         {
-            _dayIndex.Add(1);
+            _dayIndex.Add(0);
         }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[2]))
         {
-            _dayIndex.Add(2);
+            _dayIndex.Add(1);
         }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[3]))
         {
-            _dayIndex.Add(3);
+            _dayIndex.Add(2);
         }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[4]))
         {
-            _dayIndex.Add(4);
+            _dayIndex.Add(3);
         }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[5]))
         {
-            _dayIndex.Add(5);
+            _dayIndex.Add(4);
         }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[6]))
         {
-            _dayIndex.Add(6);
+            _dayIndex.Add(5);
         }
         var dayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
     }
@@ -157,23 +181,23 @@
 
 
 
-    public async void SendWorkload(){
+    public async void SendWorkload(WorkLoadEvent model){
         if (_isReccuring)
         {
-            switch (selectedIndex)
-            {
-                case  0: 
+            /*switch (selectedIndex)
+                    {
+                    case  0: 
                     SendWorkloadDaily();
                     break;
-                case 1:
+                    case 1:
                     SendWorkloadWeekly();
-                    break;
-                case 2:
+                break;
+                    case 2:
                     SendWorkloadMonthly();
-                    break;
-                default:
-                    break;
-            }
+                break;
+                    default:
+            break;}*/
+    
             string description = "Bester Workload";
             List<ushort> months = new List<ushort> { 4, 2 };
             List<ushort> weekdays = new List<ushort> { 1, 2 };
@@ -197,7 +221,6 @@
                     WeekdayFlags = weekdayFlags
 
                 };
-
             Workload workload = new Workload
                 {
                     Description = model.Text,

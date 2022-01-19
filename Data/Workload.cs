@@ -16,7 +16,7 @@ namespace SmartSwitchWeb.Data
         [JsonPropertyName("toleranceDurationM")]
         public int ToleranceDurationM { get; set; }
         [JsonPropertyName("repeatPattern")]
-        public RepeatPattern RepeatPattern { get; set; }
+        public RepeatPattern[] RepeatPattern { get; set; }
         [JsonPropertyName("isEnabled")]
         public bool IsEnabled { get; set; }
 

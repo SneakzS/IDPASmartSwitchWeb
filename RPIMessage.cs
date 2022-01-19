@@ -21,8 +21,8 @@ namespace SmartSwitchWeb
         [JsonPropertyName("clientGuid")]
         public string ClientGUID { get; set; }
 
-        [JsonPropertyName("workloadDefinitions")]
-        public Workload[] Workload { get; set; }
+        [JsonPropertyName("workloadDefinition")]
+        public Workload Workload { get; set; }
 
         public enum Action : int{
             SetWorkload = 1,

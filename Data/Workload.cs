@@ -38,6 +38,8 @@ namespace SmartSwitchWeb.Data
         public ulong MinuteFlags { get; set; }
         [JsonPropertyName("weekdayFlags")]
         public ushort WeekdayFlags { get; set; }
+        [JsonPropertyName("expiryDate")]
+        public System.DateTime ExpiryDate { get; set; }
         public static uint SetFlag(List<uint> bitPos) 
         {
             uint finalInt = 0;

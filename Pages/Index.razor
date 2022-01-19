@@ -18,9 +18,6 @@
 </div>
 
 @code {
-    private string _hubUrl;
-    private HubConnection _hubConnection;
-    private bool _isOnline;
     RadzenScheduler<WorkLoadEvent> scheduler;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
     IList<WorkLoadEvent> appointments = new List<WorkLoadEvent>
@@ -84,6 +81,5 @@
 
         // Get the appointments for between the Start and End
         appointments = IcalCalendar.GetWorkloads(args.Start, args.End);
-        _isOnline = true;
     }
 }

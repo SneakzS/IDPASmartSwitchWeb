@@ -41,16 +41,16 @@
             <RadzenLabel Text="Start" />
         </div>
         <div class="col">
-            <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" />
+            <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" DateFormat="HH:mm" />
             <RadzenRequiredValidator Text="Start is required" Component="Start" />
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
-            <RadzenLabel Text="End" />
+            <RadzenLabel Text="Ende" />
         </div>
         <div class="col">
-            <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" />
+            <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" DateFormat="HH:mm"/>
             <RadzenRequiredValidator Component="End" Text="End is required" />
         </div>
     </div>
@@ -59,7 +59,7 @@
             <RadzenLabel Text="Wiederholen" />
         </div>
         <div class="col">
-            <RadzenSwitch @bind-Value=@_isReccuring Change=@(args => OnChange(args, "Switch")) />
+            <RadzenSwitch @bind-Value=@_isReccuring Change=@(args => OnChangeRepeating(args, "Switch")) />
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px" hidden=@_isReccuringInverted>
@@ -106,7 +106,7 @@
     int selectedIndex = 0;
     int Interval = 1;
     IEnumerable<string> weekDays = DateTimeFormatInfo.CurrentInfo.DayNames;
-    IEnumerable<string> month = Enumerable.Range(1, 12).Select(i => new { I = i, M = DateTimeFormatInfo.CurrentInfo.GetMonthName(i) });
+    IEnumerable<string> month = (DateTimeFormatInfo.CurrentInfo.MonthNames).Take(12);
     IEnumerable<int> monthDays = Enumerable.Range(1, 31).ToArray();
 
     IEnumerable<string> monthSelected;
@@ -129,7 +129,7 @@
         model.End = End;
 
     }
-    void OnChange(bool value, string name)
+    void OnChangeRepeating(bool value, string name)
     {
         _isReccuringInverted = !value;
     }
@@ -141,14 +141,77 @@
     }
     void SendWorkloadDaily()
     {
+        List<uint> days;
+        List<ushort> months = new List<ushort> {1,2,3,4,5,6,7,8,9,10,11,12 };
         if(Interval == 1)
         {
-            List<uint> days = new List<uint> { 1, 2, 3, 4,5,6,7 };
+            days = new List<uint> { 1, 2, 3, 4,5,6,7 };
+
         }
+        ushort monthsFlags = ushort.MaxValue;
+        ushort weekdayFlags = ushort.MaxValue;
+        RepeatPattern pattern = new RepeatPattern()
+        {
+                MonthFlags = monthsFlags,
+                WeekdayFlags = weekdayFlags
+        };
+        Workload workload = CreateWorkload(pattern);
+        SendMessage(workload);
     }
     void SendWorkloadWeekly()
     {
-        List<ushort> _dayIndex = new List<ushort>();
+        List<ushort> _monthIndex = new List<ushort>();
+        if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[0]))
+        {
+            _monthIndex.Add(1);
+        }
+        else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[1]))
+        {
+            _monthIndex.Add(2);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[2]))
+        {
+            _monthIndex.Add(3);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[3]))
+        {
+            _monthIndex.Add(4);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[4]))
+        {
+            _monthIndex.Add(5);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[5]))
+        {
+            _monthIndex.Add(6);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[6]))
+        {
+            _monthIndex.Add(7);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[7]))
+        {
+            _monthIndex.Add(8);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[8]))
+        {
+            _monthIndex.Add(9);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[9]))
+        {
+            _monthIndex.Add(10);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[10]))
+        {
+            _monthIndex.Add(11);
+        }else if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.MonthNames[11]))
+        {
+            _monthIndex.Add(12);
+        }
+        var monthsFlags = (ushort)RepeatPattern.SetFlagUshort(_monthIndex);
+        uint dayFlags = (uint)RepeatPattern.SetFlag(monthDaysSelected.Select(i=>(uint)i).ToList());
+        RepeatPattern pattern = new RepeatPattern()
+        {
+                MonthFlags = monthsFlags,
+                DayFlags = dayFlags
+        };
+        Workload workload = CreateWorkload(pattern);
+        SendMessage(workload);
+    }
+    void SendWorkloadMonthly()
+    {
+                List<ushort> _dayIndex = new List<ushort>();
         if (weekDaysSelected.Contains(DateTimeFormatInfo.CurrentInfo.DayNames[0]))
         {
             _dayIndex.Add(6);
@@ -172,74 +235,98 @@
         {
             _dayIndex.Add(5);
         }
-        var dayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
+        var weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
+        ushort monthsFlags = ushort.MaxValue;
+        RepeatPattern pattern = new RepeatPattern()
+        {
+                MonthFlags = monthsFlags,
+                WeekdayFlags = weekdayFlags
+        };
+        Workload workload = CreateWorkload(pattern);
+        SendMessage(workload);
     }
-    void SendWorkloadMonthly()
+    public async void SendMessage(Workload workload)
+    {
+        RPIMessage msg = new RPIMessage
+        {
+            ActionID = (int)RPIMessage.Action.SetWorkload,
+            Workload = workload
+
+        };
+        await _clientHandler.Broadcast(msg);
+    }
+    public Workload CreateWorkload(RepeatPattern pattern)
+    {
+        var rand = new Random();
+        int randomNumber = rand.Next();
+        RepeatPattern[] patterns = { pattern };
+        Workload workload = new Workload
+            {
+                Description = model.Text,
+                DurationM = model.Duration,
+                IsEnabled = true,
+                RepeatPattern = patterns,
+                ToleranceDurationM = (int)(model.End - model.Start).TotalMinutes,
+                WorkloadDefinitionId = randomNumber,
+                WorkloadW = model.MW
+            };
+        return workload;
+    }
+
+
+    public async void SendWorkload(WorkLoadEvent model)
     {
 
-    }
-
-
-
-    public async void SendWorkload(WorkLoadEvent model){
         if (_isReccuring)
         {
-            /*switch (selectedIndex)
-                    {
-                    case  0: 
+            switch (selectedIndex)
+            {
+                case 0:
                     SendWorkloadDaily();
                     break;
-                    case 1:
+                case 1:
                     SendWorkloadWeekly();
-                break;
-                    case 2:
+                    break;
+                case 2:
                     SendWorkloadMonthly();
-                break;
-                    default:
-            break;}*/
-    
-            string description = "Bester Workload";
-            List<ushort> months = new List<ushort> { 4, 2 };
-            List<ushort> weekdays = new List<ushort> { 1, 2 };
-            List<uint> days = new List<uint> { 1, 2, 3, 4 };
-            List<uint> hours = new List<uint> { 23 };
-            List<ulong> minutes = new List<ulong> { 23 };
+                    break;
+                default:
+                    break;
+            }
+        /*List<ushort> months = new List<ushort> { 4, 2 };
+        List<ushort> weekdays = new List<ushort> { 1, 2 };
+        List<uint> days = new List<uint> { 1, 2, 3, 4 };
+        List<uint> hours = new List<uint> { 23 };
+        List<ulong> minutes = new List<ulong> { 23 };
 
-            uint dayFlags = (uint)RepeatPattern.SetFlag(days);
-            uint hourFlags = (uint)RepeatPattern.SetFlag(hours);
-            ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minutes);
+        uint dayFlags = (uint)RepeatPattern.SetFlag(days);
+        uint hourFlags = (uint)RepeatPattern.SetFlag(hours);
+        ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minutes);
 
-            ushort monthsFlags = ushort.MaxValue;
-            ushort weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(weekdays);
+        ushort monthsFlags = ushort.MaxValue;
+        ushort weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(weekdays);
 
-            RepeatPattern pattern = new RepeatPattern()
-                {
-                    MonthFlags = monthsFlags,
-                    DayFlags = dayFlags,
-                    HourFlags = hourFlags,
-                    MinuteFlags = minuteFlags,
-                    WeekdayFlags = weekdayFlags
+        RepeatPattern pattern = new RepeatPattern()
+            {
+                MonthFlags = monthsFlags,
+                DayFlags = dayFlags,
+                HourFlags = hourFlags,
+                MinuteFlags = minuteFlags,
+                WeekdayFlags = weekdayFlags
 
-                };
-            Workload workload = new Workload
-                {
-                    Description = model.Text,
-                    DurationM = model.Duration,
-                    IsEnabled = true,
-                    RepeatPattern = pattern,
-                    ToleranceDurationM = (int)(model.End - model.Start).TotalMinutes,
-                    WorkloadDefinitionId = 4,
-                    WorkloadW = model.MW
-                };
-            List<Workload> wList = new List<Workload>();
-            wList.Add(workload);
-            RPIMessage msg = new RPIMessage
-                {
-                    ActionID = (int)RPIMessage.Action.SetWorkload,
-                    Workload = wList.ToArray()
+            };
+        RepeatPattern[] patterns = { pattern };
+        Workload workload = new Workload
+            {
+                Description = model.Text,
+                DurationM = model.Duration,
+                IsEnabled = true,
+                RepeatPattern = patterns,
+                ToleranceDurationM = (int)(model.End - model.Start).TotalMinutes,
+                WorkloadDefinitionId = 4,
+                WorkloadW = model.MW
+            };*/
 
-                };
-            await _clientHandler.Broadcast(msg);
         }
         else {
             Workload work = new Workload
@@ -251,11 +338,11 @@
             RPIMessage msg = new RPIMessage
                 {
                     ActionID = (int)RPIMessage.Action.DeleteWorkload,
-                    Workload = wList.ToArray()
+                    Workload = work
                 };
                         await _clientHandler.Broadcast(msg);
         }
-
+        }
     }
 
 }

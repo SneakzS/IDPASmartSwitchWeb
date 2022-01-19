@@ -150,10 +150,19 @@
         }
         ushort monthsFlags = ushort.MaxValue;
         ushort weekdayFlags = ushort.MaxValue;
+        List<ulong> minute = new List<ulong> {(ulong)model.Start.Minute };
+        List<uint> hour = new List<uint> {(uint)model.Start.Hour };
+        uint hourFlags = (uint)RepeatPattern.SetFlag(hour);
+        ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minute);
+
         RepeatPattern pattern = new RepeatPattern()
         {
                 MonthFlags = monthsFlags,
-                WeekdayFlags = weekdayFlags
+                WeekdayFlags = weekdayFlags,
+                HourFlags = hourFlags,
+                MinuteFlags = minuteFlags,
+                ExpiryDate = DateTime.MaxValue
+                
         };
         Workload workload = CreateWorkload(pattern);
         SendMessage(workload);
@@ -201,10 +210,17 @@
         }
         var monthsFlags = (ushort)RepeatPattern.SetFlagUshort(_monthIndex);
         uint dayFlags = (uint)RepeatPattern.SetFlag(monthDaysSelected.Select(i=>(uint)i).ToList());
+         List<ulong> minute = new List<ulong> {(ulong)model.Start.Minute };
+        List<uint> hour = new List<uint> {(uint)model.Start.Hour };
+        uint hourFlags = (uint)RepeatPattern.SetFlag(hour);
+        ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minute);
         RepeatPattern pattern = new RepeatPattern()
         {
                 MonthFlags = monthsFlags,
-                DayFlags = dayFlags
+                WeekdayFlags = weekdayFlags,
+                HourFlags = hourFlags,
+                MinuteFlags = minuteFlags,
+                ExpiryDate = DateTime.MaxValue
         };
         Workload workload = CreateWorkload(pattern);
         SendMessage(workload);
@@ -237,10 +253,17 @@
         }
         var weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
         ushort monthsFlags = ushort.MaxValue;
+         List<ulong> minute = new List<ulong> {(ulong)model.Start.Minute };
+        List<uint> hour = new List<uint> {(uint)model.Start.Hour };
+        uint hourFlags = (uint)RepeatPattern.SetFlag(hour);
+        ulong minuteFlags = (ulong)RepeatPattern.SetFlagUlong(minute);
         RepeatPattern pattern = new RepeatPattern()
         {
                 MonthFlags = monthsFlags,
-                WeekdayFlags = weekdayFlags
+                WeekdayFlags = weekdayFlags,
+                HourFlags = hourFlags,
+                MinuteFlags = minuteFlags,
+                ExpiryDate = DateTime.MaxValue
         };
         Workload workload = CreateWorkload(pattern);
         SendMessage(workload);

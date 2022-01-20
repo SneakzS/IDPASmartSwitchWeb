@@ -21,7 +21,7 @@ namespace SmartSwitchWeb.SocketsManager
             if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/ws")
             {
                 var socket = await context.WebSockets.AcceptWebSocketAsync();
-                await HandleSocket(socket);
+                await HandleSocket(socket, context.RequestAborted);
 
             }
             else
@@ -47,7 +47,7 @@ namespace SmartSwitchWeb.SocketsManager
 
 
 
-        async Task HandleSocket(WebSocket socket)
+        async Task HandleSocket(WebSocket socket, CancellationToken ct)
         {
             string clientGUID = null;
             var buf = new byte[4096];
@@ -56,12 +56,12 @@ namespace SmartSwitchWeb.SocketsManager
             {
                 for (; ; )
                 {
-                    var rawMessage = await socket.ReceiveAsync(buf, CancellationToken.None);
+                    var rawMessage = await socket.ReceiveAsync(buf, ct);
 
                     switch (rawMessage.MessageType)
                     {
                         case WebSocketMessageType.Close:
-                            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, ct);
                             return;
 
                         case WebSocketMessageType.Text:

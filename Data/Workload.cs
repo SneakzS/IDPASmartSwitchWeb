@@ -6,7 +6,9 @@ namespace SmartSwitchWeb.Data
 {
     public class Workload
     {
+        [JsonIgnore]
         public int WorkloadID { get; set; }
+        
         [JsonPropertyName("description")]
         public string Description { get; set; }
         [JsonPropertyName("workloadDefinitionId")]
@@ -17,17 +19,15 @@ namespace SmartSwitchWeb.Data
         
         [JsonPropertyName("durationM")]
         public int DurationM { get; set; }
+
         [JsonPropertyName("toleranceDurationM")]
         public int ToleranceDurationM { get; set; }
+        
         [JsonPropertyName("repeatPattern")]
         public RepeatPattern[] RepeatPattern { get; set; }
+        
         [JsonPropertyName("isEnabled")]
         public bool IsEnabled { get; set; }
-
-        public Workload()
-        {   
-                    
-        }
     }
     public class RepeatPattern
     {

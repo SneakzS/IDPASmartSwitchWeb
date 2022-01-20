@@ -8,6 +8,8 @@ namespace SmartSwitchWeb.Handlers {
         Task HandleClientClosed(WebSocket socket, string clientGUID);
 
         Task SendClientMessage(string clientGUID, RPIMessage message, bool isResending = false);
+
+        Task<RPIMessage> SendClientRequest(string clientGUID, RPIMessage message);
         Task Broadcast(RPIMessage message);
     }
 }

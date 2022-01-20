@@ -1,19 +1,31 @@
 ﻿@page "/"
+@using Database
 @using Microsoft.AspNetCore.SignalR.Client
 @using Radzen.Blazor.Rendering
 @using SmartSwitchWeb.Data
 @inject DialogService DialogService
 @inject NavigationManager navigationManager
+@using SmartSwitchWeb.Handlers
+@inject IWebSocketClientHandler _clientHandler
 
-<div >
+<div>
+
+    <RadzenButton Click=@FetchWorkloadEvents>Fetch Workload Events</RadzenButton>
+    <RadzenButton Click=@CreateWorkload>Create Workload</RadzenButton>
+
+    <RadzenTextBox Change=@OnUpdateWorkloadIDChanged Placeholder="Update workload ID" />
+    <RadzenButton Click=@UpdateWorkload>Update Workload</RadzenButton>
+
+
     <div>
-    <RadzenScheduler @ref=@scheduler LoadData=@OnLoadData SlotRender=@OnSlotRender style="height: 768px" TItem="WorkLoadEvent" Data=@appointments StartProperty="Start" EndProperty="End"
-        TextProperty="Text" SelectedIndex="2"
-        SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
-        <RadzenDayView />
-        <RadzenWeekView />
-        <RadzenMonthView />
-    </RadzenScheduler>
+        <RadzenScheduler @ref=@scheduler LoadData=@OnLoadData SlotRender=@OnSlotRender style="height: 768px"
+            TItem="WorkLoadEvent" Data=@appointments StartProperty="Start" EndProperty="End" TextProperty="Text"
+            SelectedIndex="2" SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect
+            AppointmentRender=@OnAppointmentRender>
+            <RadzenDayView />
+            <RadzenWeekView />
+            <RadzenMonthView />
+        </RadzenScheduler>
     </div>
 </div>
 
@@ -21,17 +33,25 @@
     RadzenScheduler<WorkLoadEvent> scheduler;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
     IList<WorkLoadEvent> appointments = new List<WorkLoadEvent>
-    {
-        new WorkLoadEvent { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "Birthday", Data= new List<int> {3,2}},
-        new WorkLoadEvent { Start = DateTime.Today.AddDays(-11), End = DateTime.Today.AddDays(-10), Text = "Day off", Data= new List<int> {3,2} },
-        new WorkLoadEvent { Start = DateTime.Today.AddDays(-10), End = DateTime.Today.AddDays(-8), Text = "Work from home", Data= new List<int> {3,2} },
-        new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(12), Text = "Online meeting", Data= new List<int> {3,2} },
-        new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(13), Text = "Skype call", Data= new List<int> {3,2} },
-        new WorkLoadEvent { Start = DateTime.Today.AddHours(14), End = DateTime.Today.AddHours(14).AddMinutes(30), Text = "Dentist appointment" , Data= new List<int> {3,2}},
-        new WorkLoadEvent { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation", Data= new List<int> {3,2} },
-    };
+{
+//TODO: use the workloads reported from the raspberry
+new WorkLoadEvent { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "Birthday", Data= new
+List<int> {3,2}},
+new WorkLoadEvent { Start = DateTime.Today.AddDays(-11), End = DateTime.Today.AddDays(-10), Text = "Day off", Data= new
+List<int> {3,2} },
+new WorkLoadEvent { Start = DateTime.Today.AddDays(-10), End = DateTime.Today.AddDays(-8), Text = "Work from home",
+Data= new List<int> {3,2} },
+new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(12), Text = "Online meeting",
+Data= new List<int> {3,2} },
+new WorkLoadEvent { Start = DateTime.Today.AddHours(10), End = DateTime.Today.AddHours(13), Text = "Skype call", Data=
+new List<int> {3,2} },
+new WorkLoadEvent { Start = DateTime.Today.AddHours(14), End = DateTime.Today.AddHours(14).AddMinutes(30), Text =
+"Dentist appointment" , Data= new List<int> {3,2}},
+new WorkLoadEvent { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation", Data= new
+List<int> {3,2} },
+};
 
-    void OnSlotRender(SchedulerSlotRenderEventArgs args) 
+    void OnSlotRender(SchedulerSlotRenderEventArgs args)
     {
         // Highlight today in month view
         if (args.View.Text == "Month" && args.Start.Date == DateTime.Today)
@@ -46,10 +66,84 @@
         }
     }
 
+    async Task FetchWorkloadEvents()
+    {
+        var msg = new RPIMessage
+        {
+            ActionID = (int)RPIMessage.Action.GetWorkloads,
+            StartTime = DateTime.UtcNow.AddDays(-30),
+            DurationM = 60 * 24 * 100,
+        };
+        var res = await _clientHandler.SendClientRequest("4c2a1ab6-e453-45c4-97e3-424d872088e9", msg);
+
+        
+        if (res.ActiveWorkloads != null)
+        {
+            var newAppointments = new List<WorkLoadEvent>(res.ActiveWorkloads.Length);
+            foreach (var aw in res.ActiveWorkloads)
+            {
+                newAppointments.Add(new WorkLoadEvent
+                {
+                    Start = aw.StartTime.AddMinutes(aw.OffsetM),
+                    End = aw.StartTime.AddMinutes(aw.OffsetM + aw.DurationM),
+                    Text = "Must be fetched from Workload"
+                });
+            }
+
+            appointments = newAppointments; // react style update
+
+        }
+    }
+
+    async Task CreateWorkload()
+    {
+        var wl = new Workload {
+            Description = "Test",
+            WorkloadW = 42,
+            RepeatPattern = new RepeatPattern[] {
+                new RepeatPattern {
+                    MonthFlags = UInt16.MaxValue,
+                    DayFlags = UInt32.MaxValue,
+                    HourFlags = UInt32.MaxValue,
+                    MinuteFlags = 1 << 0, // every full hour
+                    WeekdayFlags = Byte.MaxValue,
+                }
+            },
+            DurationM = 20,
+            ToleranceDurationM = 60,
+            
+        };
+
+        var msg = new RPIMessage {
+            ActionID = (int)RPIMessage.Action.SetWorkload,
+            Workload = wl,
+        };
+
+        var resp = await _clientHandler.SendClientRequest("4c2a1ab6-e453-45c4-97e3-424d872088e9", msg);
+
+        wl.WorkloadDefinitionId = resp.Workload.WorkloadDefinitionId; // copy the id we created on the client
+
+        using (var ctx = new WorkloadContext()) {
+            ctx.Add(wl);
+            await ctx.SaveChangesAsync();
+        }
+
+    }
+
+    void UpdateWorkload()
+    {
+
+    }
+
+    void OnUpdateWorkloadIDChanged(string value)
+    {
+
+    }
+
     async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
     {
         WorkLoadEvent data = await DialogService.OpenAsync<AddAppointmentPage>("Add Appointment",
-            new Dictionary<string, object> { { "Start", args.Start }, { "End", args.End } });
+        new Dictionary<string, object> { { "Start", args.Start }, { "End", args.End } });
 
         if (data != null)
         {
@@ -61,7 +155,8 @@
 
     async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<WorkLoadEvent> args)
     {
-        await DialogService.OpenAsync<EditAppointmentPage>("Edit Appointment", new Dictionary<string, object> { { "Appointment", args.Data } });
+        await DialogService.OpenAsync<EditAppointmentPage>("Edit Appointment", new Dictionary<string, object> { { "Appointment",
+args.Data } });
 
         await scheduler.Reload();
     }
@@ -75,7 +170,7 @@
             args.Attributes["style"] = "background: red";
         }
     }
-    
+
     async Task OnLoadData(SchedulerLoadDataEventArgs args)
     {
 

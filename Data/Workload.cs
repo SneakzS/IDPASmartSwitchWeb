@@ -5,6 +5,7 @@ namespace SmartSwitchWeb.Data
 {
     public class Workload
     {
+        public int WorkloadID { get; set; }
         [JsonPropertyName("description")]
         public string Description { get; set; }
         [JsonPropertyName("workloadDefinitionId")]
@@ -27,6 +28,7 @@ namespace SmartSwitchWeb.Data
     }
     public class RepeatPattern
     {
+        public int RepeatPatternID { get; set; }
 
         [JsonPropertyName("monthFlags")]
         public ushort MonthFlags { get; set; }

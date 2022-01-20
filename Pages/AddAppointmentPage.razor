@@ -149,7 +149,7 @@
 
         }
         ushort monthsFlags = ushort.MaxValue;
-        ushort weekdayFlags = ushort.MaxValue;
+        byte weekdayFlags = byte.MaxValue;
         List<ulong> minute = new List<ulong> {(ulong)model.Start.Minute };
         List<uint> hour = new List<uint> {(uint)model.Start.Hour };
         uint hourFlags = (uint)RepeatPattern.SetFlag(hour);
@@ -251,7 +251,7 @@
         {
             _dayIndex.Add(5);
         }
-        var weekdayFlags = (ushort)RepeatPattern.SetFlagUshort(_dayIndex);
+        var weekdayFlags = (byte)RepeatPattern.SetFlagUshort(_dayIndex);
         ushort monthsFlags = ushort.MaxValue;
          List<ulong> minute = new List<ulong> {(ulong)model.Start.Minute };
         List<uint> hour = new List<uint> {(uint)model.Start.Hour };

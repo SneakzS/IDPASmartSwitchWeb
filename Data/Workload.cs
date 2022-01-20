@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace SmartSwitchWeb.Data
@@ -9,8 +10,10 @@ namespace SmartSwitchWeb.Data
         public string Description { get; set; }
         [JsonPropertyName("workloadDefinitionId")]
         public int WorkloadDefinitionId { get; set; }
+        
         [JsonPropertyName("workloadW")]
         public int WorkloadW { get; set; }
+        
         [JsonPropertyName("durationM")]
         public int DurationM { get; set; }
         [JsonPropertyName("toleranceDurationM")]
@@ -37,7 +40,7 @@ namespace SmartSwitchWeb.Data
         [JsonPropertyName("minuteFlags")]
         public ulong MinuteFlags { get; set; }
         [JsonPropertyName("weekdayFlags")]
-        public ushort WeekdayFlags { get; set; }
+        public byte WeekdayFlags { get; set; }
         [JsonPropertyName("expiryDate")]
         public System.DateTime ExpiryDate { get; set; }
         public static uint SetFlag(List<uint> bitPos) 

@@ -6,14 +6,13 @@ namespace SmartSwitchWeb.Data
     {
         public int MessageID { get; set; }
         public DateTime Time { get; set; }
-        public string MessageJson { get; set; }
+        public byte[] MessageJson { get; set; }
         public bool IsSent { get; set; }
         public string Guid { get; set; }
-        public bool IsResent { get; set; }
         public virtual Device Device { get; set; }
 
         public Message() { }
-        public Message(string message, bool isSent, string guid)
+        public Message(byte[] message, bool isSent, string guid)
         {
             this.MessageJson = message;
             this.IsSent = isSent;

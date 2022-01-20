@@ -91,19 +91,29 @@ namespace SmartSwitchWeb.Handlers
             }
         }
 
-        public async Task SendClientMessage(string clientGUID, RPIMessage message)
+        public async Task SendClientMessage(string clientGUID, RPIMessage message,bool isResending = false)
         {
             WebSocket socket;
             var data = SerializeMessage(message);
 
-            if (_clients.TryGetValue(clientGUID, out socket) && socket.State == WebSocketState.Open)
+            using (var ctx = new MessageContext())
             {
-                await socket.SendAsync(data, WebSocketMessageType.Text, true, System.Threading.CancellationToken.None);
-            }
-            else
-            {
-                Console.Error.WriteLine("client {0} is not connected", clientGUID);
-                // TODO: cache in database and send when connected
+                if (_clients.TryGetValue(clientGUID, out socket) && socket.State == WebSocketState.Open)
+                { if (isResending == false)
+                    {
+                        new Data.Message(data, true, clientGUID);
+                    }
+                    else
+                    {
+                    }
+                    await socket.SendAsync(data, WebSocketMessageType.Text, true, System.Threading.CancellationToken.None);
+                }
+                else
+                {
+                    Console.Error.WriteLine("client {0} is not connected", clientGUID);
+                    new Data.Message(data, false, clientGUID);
+                    // TODO: cache in database and send when connected
+                }
             }
         }
     }

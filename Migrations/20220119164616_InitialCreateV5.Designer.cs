@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartSwitchWeb.Database;
 
@@ -10,9 +11,10 @@ using SmartSwitchWeb.Database;
 namespace SmartSwitchWeb.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220119164616_InitialCreateV5")]
+    partial class InitialCreateV5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
@@ -58,8 +60,8 @@ namespace SmartSwitchWeb.Migrations
                     b.Property<bool>("IsSent")
                         .HasColumnType("INTEGER");
 
-                    b.Property<byte[]>("MessageJson")
-                        .HasColumnType("BLOB");
+                    b.Property<string>("MessageJson")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Time")
                         .HasColumnType("TEXT");

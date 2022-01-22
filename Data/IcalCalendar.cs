@@ -3,21 +3,20 @@ using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using System;
 using System.Collections.Generic;
-using Radzen.Blazor;
 using System.Linq;
 
 namespace SmartSwitchWeb.Data
 {
     public static class IcalCalendar
     {
-       
+
         private static Calendar calendar = new Calendar();
         public static void addDailyEvent()
         {
             if (calendar.Events.Count == 0)
             {
-                  DateTime now = System.DateTime.Now;
-                    var occurences = new HashSet<Occurrence>();
+                DateTime now = System.DateTime.Now;
+                var occurences = new HashSet<Occurrence>();
                 var later = now.AddHours(1);
 
                 //Repeat daily for 5 days
@@ -64,20 +63,29 @@ namespace SmartSwitchWeb.Data
                     .Select(x => x.Value).Single();
                 int usageW = (int)sourceEvent.Properties
                     .Where(i => i.Name == "X-Usage-W").Select(x => x.Value).Single();
-                workLoads.Add(new WorkLoadEvent { Start = DateTime.Today.AddDays(1), 
-                    End = DateTime.Today.AddDays(12), Text = "Vacation",
-                    Duration = durationMin, MW = usageW });
+                workLoads.Add(new WorkLoadEvent
+                {
+                    Start = DateTime.Today.AddDays(1),
+                    End = DateTime.Today.AddDays(12),
+                    Text = "Vacation",
+                    Duration = durationMin,
+                    MW = usageW
+                });
             }
             return workLoads;
 
         }
     }
-    public class WorkLoadEvent : AppointmentData
+    public class WorkLoadEvent
     {
         public int MW;
         public int Duration;
         public RepeatPattern Pattern;
         public int Guid;
+
+        public DateTime Start { get; set; }
+        public string Text { get; set; }
+        public DateTime End { get; set; }
     }
 
 }

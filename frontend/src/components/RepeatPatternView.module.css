@@ -1,0 +1,10 @@
+.flex-children {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.flex-children :global(.form-check) {
+    margin-bottom: 3px;
+    margin-right: 6px;
+}

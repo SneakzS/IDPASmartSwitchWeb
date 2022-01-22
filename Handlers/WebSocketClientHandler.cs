@@ -94,7 +94,7 @@ namespace SmartSwitchWeb.Handlers
 
                 if (hasRequest)
                 {
-                    if (message.ActionID == (int)RPIMessage.Action.NotifyError) {
+                    if (message.ActionID == RPIAction.NotifyError.ToID()) {
                         cs.SetException(new Exception($"request failed: {message.ErrorMessage}"));
                     } else {
                         cs.SetResult(message);

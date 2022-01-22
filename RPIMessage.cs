@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using SmartSwitchWeb.Data;
 using SmartSwitchWeb.Handlers;
 using System;
+using IDPASmartSwitchWeb;
 
 namespace SmartSwitchWeb
 {
@@ -32,6 +33,9 @@ namespace SmartSwitchWeb
         [JsonPropertyName("activeWorkloads")]
         public ActiveWorkload[] ActiveWorkloads { get; set; }
 
+        [JsonPropertyName("currentWorkloadDefinitions")]
+        public Workload[] CurrentWorkloads { get; set; }
+
         [JsonPropertyName("errorMessage")]
         public string ErrorMessage { get; set; }
 
@@ -42,58 +46,11 @@ namespace SmartSwitchWeb
         [JsonPropertyName("durationM")]
         public int DurationM { get; set; }
 
-        public enum Action : int
-        {
-            SetWorkload = 1,
-            GetWorkload = 2,
-            DeleteWorkload = 3,
-            SetFlags = 4,
-            GetFlags = 5,
-            Helo = 6,
-            GetWorkloads = 7,
-
-            NotifyError = 101,
-            NotifyWorkloadCreated = 102,
-            NotifyNoContent = 103,
-            NotifyWorkloads = 104
-        }
-
-        public static string Serialize(RPIMessage msg)
-        {
-            var data = JsonSerializer.Serialize<RPIMessage>(msg);
-            var bytes = Encoding.UTF8.GetBytes(data);
-            return data;
-        }
-        public enum Flag
-        {
-            Enforce = 1 << 0,
-
-            IsEnabled = 1 << 1,
-
-            IsUIConnected = 1 << 2,
-
-            ProviderClientOK = 1 << 3
-        }
+        [JsonPropertyName("sensorSamples")]
+        public RPISensorSample[] SensorSamples { get; set; }
 
     }
 
-    public class ActiveWorkload
-    {
-        [JsonPropertyName("workloadDefinitionId")]
-        public int WorkloadDefinitionID { get; set; }
 
-        [JsonPropertyName("offsetM")]
-        public int OffsetM { get; set; }
-
-        [JsonPropertyName("startTime")]
-        public DateTime StartTime { get; set; }
-
-        [JsonPropertyName("durationM")]
-        public int DurationM { get; set; }
-
-        [JsonPropertyName("workloadW")]
-        public int WorkloadW { get; set; }
-
-    }
 
 }

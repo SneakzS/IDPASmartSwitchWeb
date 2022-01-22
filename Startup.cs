@@ -8,12 +8,14 @@ using System;
 using System.Net;
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.ResponseCompression;
-using SmartSwitchWeb.SocketsManager;
 using SmartSwitchWeb.Handlers;
-using Radzen;
 using SmartSwitchWeb.Database;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.SpaServices;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 
 namespace SmartSwitchWeb
 {
@@ -22,10 +24,9 @@ namespace SmartSwitchWeb
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _clientHandler = new WebSocketClientHandler();
             using (DeviceContext context = new DeviceContext())
             {
-                List<Device> deviceList = context.GetAll().FindAll(d => d.Status != DeviceStatus.Offline );
+                List<Device> deviceList = context.GetAll().FindAll(d => d.Status != DeviceStatus.Offline);
                 foreach (Device device in deviceList)
                 {
                     device.Status = DeviceStatus.Offline;
@@ -34,21 +35,20 @@ namespace SmartSwitchWeb
             }
         }
 
-        WebSocketClientHandler _clientHandler;
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
-            services.AddServerSideBlazor();
-            services.AddScoped<DialogService>();
-            services.AddScoped<NotificationService>();
-            services.AddScoped<TooltipService>();
-            services.AddScoped<ContextMenuService>();
-            services.AddSingleton<IWebSocketClientHandler>(_clientHandler);
+            services.AddControllers();
+            services.AddSingleton<IWebSocketClientHandler>(new WebSocketClientHandler());
+
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "frontend/build";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,6 +57,7 @@ namespace SmartSwitchWeb
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
             }
             else
             {
@@ -65,22 +66,30 @@ namespace SmartSwitchWeb
                 app.UseHsts();
             }
 
+
             app.UseStaticFiles();
+            app.UseSpaStaticFiles();
 
             app.UseRouting();
-            var webSocketOptions = new WebSocketOptions()
-            {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
-                
-            };
 
-            app.UseWebSockets(webSocketOptions);
-            app.Use(new SocketMiddleware(_clientHandler).InvokeAsync);
+            app.UseStatusCodePages();
+
+            app.UseWebSockets();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapBlazorHub();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapControllers();
             });
+
+            app.UseSpa(spa =>
+                        {
+                            spa.Options.SourcePath = "frontend";
+
+                            if (env.IsDevelopment())
+                            {
+                                spa.UseReactDevelopmentServer(npmScript: "start");
+                            }
+                        });
+
         }
     }
 }

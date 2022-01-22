@@ -8,9 +8,7 @@ namespace SmartSwitchWeb.Database
     {
         public DbSet<Device> Devices { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<Workload> Workloads { get; set; }
 
-        public DbSet<RepeatPattern> RepeatPatterns{ get; set; }
         public string DbPath { get; }
 
         public DatabaseContext()
@@ -23,9 +21,6 @@ namespace SmartSwitchWeb.Database
         {
             modelBuilder.Entity<Device>().ToTable("Device");
             modelBuilder.Entity<Message>().ToTable("Message");
-            modelBuilder.Entity<Workload>().ToTable("Workload");
-
-            modelBuilder.Entity<RepeatPattern>().ToTable("RepeatPatterns");
         }
         // The following configures EF to create a Sqlite database file in the
         // special "local" folder for your platform.

@@ -32,7 +32,8 @@ export function DeviceListItem({ device, onEdit, onDelete }: DeviceListItemProps
                     <div className="mt-3">Beschreibung</div>
                     <b>{device.description}</b>
                     <div className="mt-3">Status</div>
-                    <b>{`${moment(device.lastOnline).fromNow()} ${deviceStatusToString(device.status)}`}</b>
+                    <b>{deviceStatusToString(device.status)}</b>
+                    {device.status != 1 && <i>last seen: {moment(device.lastOnline).fromNow()}</i>}
                 </div>
                 <div className="col-sm col-4">
 

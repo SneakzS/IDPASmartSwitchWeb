@@ -61,7 +61,7 @@ namespace IDPASmartSwitchWeb.Controllers
                     MonthFlags = MonthFlags,
                     DayFlags = DayFlags,
                     HourFlags = HourFlags,
-                    MinuteFlags = (ulong)(MinuteFlagsHigh << 31) | (ulong)MinuteFlagsLow,
+                    MinuteFlags = (((ulong)MinuteFlagsHigh) << 31) | (ulong)MinuteFlagsLow,
                     WeekdayFlags = WeekdayFlags,
                 };
             }

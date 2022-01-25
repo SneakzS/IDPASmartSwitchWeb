@@ -14,12 +14,13 @@ export interface DeviceListItemProps {
 }
 
 export function DeviceListItem({ device, onEdit, onDelete }: DeviceListItemProps) {
-    return <div className="rz-card card m-3" style={{ float: "inline-start", width: "400px", height: "300px" }}>
+    return <div className="rz-card card m-3" style={{ float: "inline-start", width: "500px", height: "300px" }}>
         <div>
             {device.status == 1 && <div style={{ float: "right" }}>
                 <Link to={"/events/" + device.guid} style={{ color: "black", display: "inline-block", marginRight: "6px" }}>Events</Link>
                 <Link to={"/workload/" + device.guid} style={{ color: "black", display: "inline-block", marginRight: "6px" }}>Workloads</Link>
                 <a href={`/api/v1/sensor/${device.guid}/csv`} style={{ color: "black", display: "inline-block", marginRight: "6px" }}>Sensor Data</a>
+                <a href={`/api/v1/logs/${device.guid}/csv`} style={{ color: "black", display: "inline-block", marginRight: "6px" }}>Logs</a>
             </div>}
             <h3 className="h5">{device.name}</h3>
         </div>

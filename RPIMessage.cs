@@ -49,6 +49,8 @@ namespace SmartSwitchWeb
         [JsonPropertyName("sensorSamples")]
         public RPISensorSample[] SensorSamples { get; set; }
 
+        [JsonPropertyName("logEntries")]
+        public RPILogEntry[] LogEntries { get; set; }
     }
 
 

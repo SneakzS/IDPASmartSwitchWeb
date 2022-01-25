@@ -10,6 +10,7 @@ namespace SmartSwitchWeb
         Helo = 6,
         GetWorkloadEvents = 7,
         GetSensorSamples = 8,
+        GetLogEntries = 9,
 
         NotifyError = 101,
         NotifyWorkloadCreated = 102,
@@ -17,6 +18,7 @@ namespace SmartSwitchWeb
         NotifyWorkloadEvents = 104,
         NotifyWorkloads = 105,
         NotifySensorSamples       = 106,
+        NotifyLogEntries = 107,
         
     }
 

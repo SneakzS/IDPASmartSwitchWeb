@@ -29,7 +29,7 @@ const weekdays = [
     "Sunday",
     "Monday",
     "Tuesday",
-    "Wednessday",
+    "Wednesday",
     "Thursday",
     "Friday",
     "Saturday",
@@ -169,7 +169,7 @@ export default function RepeatPatternView(props: RepeatPatternViewProps) {
                     />
 
                     <div className="spacer" style={{ height: "12px" }} />
-                    <SelectableGroup label="Select day of Week"
+                    <SelectableGroup label="Select Weekday"
                         onSelectAll={() => invokeChange({ ...props.pattern, weekdayFlags: 0xFF })}
                         onSelectNone={() => invokeChange({ ...props.pattern, weekdayFlags: 0 })}
                         onSelectChange={onWeekdaySelect}

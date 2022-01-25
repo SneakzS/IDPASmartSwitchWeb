@@ -38,10 +38,10 @@ export default function EditDeviceView({ device, ...props }: EditDeviceViewProps
                 <label>Name</label>
             </div>
             <div className="col">
-                <ValidateTextbox name="Name" tabIndex={0} autoComplete="on" placeholder="Description"
+                <ValidateTextbox name="Name" tabIndex={0} autoComplete="on" placeholder="Name"
                     value={state.name} onChange={e => { const name = e.target.value; setState(s => ({ ...s, name })) }}
                     valid={validator.stringRequired(state.name)}
-                    invalidMessage="Title is required"
+                    invalidMessage="Name is required"
                 />
             </div>
         </div>

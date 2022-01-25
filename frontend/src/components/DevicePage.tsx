@@ -27,9 +27,7 @@ export function DeviceListItem({ device, onEdit, onDelete }: DeviceListItemProps
         <div className="container">
             <div className="row">
                 <div className="col-sm col-8">
-                    <div>Name</div>
-                    <b>{device.name}</b>
-                    <div className="mt-3">Beschreibung</div>
+                    <div className="mt-3">Description</div>
                     <b>{device.description}</b>
                     <div className="mt-3">Status</div>
                     <b>{deviceStatusToString(device.status)}</b>
@@ -38,7 +36,7 @@ export function DeviceListItem({ device, onEdit, onDelete }: DeviceListItemProps
                 <div className="col-sm col-4">
 
                     <div style={{ marginTop: "6px" }}>
-                        <button className="rz-button rz-button-md btn-primary" onClick={() => onEdit && onEdit()} style={actionButtonStyle}>Edit</button>
+                        <button className="rz-button rz-button-md btn-secondary" onClick={() => onEdit && onEdit()} style={actionButtonStyle}>Edit</button>
                     </div>
                     <div style={{ marginTop: "6px" }}>
                         <button className="rz-button rz-button-md btn-danger" onClick={() => onDelete && onDelete()} style={actionButtonStyle}>Delete</button>

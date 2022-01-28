@@ -87,7 +87,7 @@ export default function EditWorkloadView(props: EditWorkloadViewProps) {
                     </div>
                     <div className="row" style={{ marginBottom: "16px" }}>
                         <div className="col-md-3">
-                            <label>Duration (M)</label>
+                            <label title="Duration of the Workload">Duration (M)</label>
                         </div>
                         <div className="col">
                             <NumberTextbox name="Duration" tabIndex={0} autoComplete="on" placeholder="Duration" className="form-control"
@@ -99,10 +99,10 @@ export default function EditWorkloadView(props: EditWorkloadViewProps) {
                     </div>
                     <div className="row" style={{ marginBottom: "16px" }}>
                         <div className="col-md-3">
-                            <label>Tolerance Duration (M)</label>
+                            <label title="Timeframe in which the workload is completed" >Tolerance Duration (M)</label>
                         </div>
                         <div className="col">
-                            <NumberTextbox name="Tolerance Duration" tabIndex={0} autoComplete="on" placeholder="Tolerance Duration" className="form-control"
+                            <NumberTextbox name="Tolerance Duration*" tabIndex={0} autoComplete="on" placeholder="Tolerance Duration" className="form-control"
                                 numberValue={state.workload.toleranceDurationM} onNumberChange={toleranceDurationM => setState(s => ({ ...s, workload: { ...s.workload, toleranceDurationM } }))}
                                 valid={state.workload.toleranceDurationM > state.workload.durationM}
                                 invalidMessage="Tolerance Duration must be bigger than the duration"
